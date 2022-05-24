@@ -18,10 +18,10 @@
 import heapq
 import pathlib
 import glob
+import os
 
 # ML/data science libraries:
 import numpy as np
-import tensorflow as tf
 from scipy import spatial
 import pandas as pd
 
@@ -51,12 +51,13 @@ def get_file_paths():
 
 file_paths = get_file_paths()
 
-# + pycharm={"name": "#%%\n"}
-# explore data -- i.e. images:
+# + [markdown] pycharm={"name": "#%% md\n"}
+# ## Explore Data -- i.e. images:
+# N.b. the dataset includes different size images and images with different number of channels (i.e. both RGB and grayscale) images.
 
+# + pycharm={"name": "#%%\n"}
 example_img = cv2.imread(next(file_paths))
 print(plt.imshow(example_img))
-# TODO: print shapes of images (different dimensions, some grayscale)
 
 # reset generator:
 file_paths = get_file_paths()
@@ -150,22 +151,20 @@ def get_embedding(file_path:str):
     return embedding
 
 
+# + [markdown] pycharm={"name": "#%% md\n"}
+# ## Calculate the Embedding Vector and Cosine Similarity:
+
 # + pycharm={"name": "#%%\n"}
 # %%time
 
 df_embeddings = pd.DataFrame(columns=['file', 'file_path', 'embedding'])
 
 # TODO: can we optimize/speed-up this, perhaps via batch processing?
-# TODO: replace POSIX file path with normal file path?
-for file_path in file_paths:
-    # TODO: replace with `get_embedding` method:
-    img = cv2.imread(file_path)
-    img = process_image(img)
+for file_path_ in file_paths:
+    embedding_ = get_embedding(file_path_)
+    file_name_ = file_path_.split('/')[-1]
 
-    embedding = model.predict(img)
-    file_name = file_path.split('/')[-1]
-
-    df_embeddings = df_embeddings.append({'file': file_name, 'file_path': file_path, 'embedding': embedding}, ignore_index=True)
+    df_embeddings = df_embeddings.append({'file': file_name_, 'file_path': file_path_, 'embedding': embedding_}, ignore_index=True)
 
 # + pycharm={"name": "#%%\n"}
 # write out to file:
@@ -193,6 +192,9 @@ df_similarity.to_csv(pathlib.Path('../data/output/similarity_scores.csv'))
 df_similarity.head()
 
 
+# + [markdown] pycharm={"name": "#%% md\n"}
+# ## Find Similar Images:
+
 # + pycharm={"name": "#%%\n"}
 def find_most_similar_images(img_path:str, num_results:int=5):
     # Load single image, process, and get embedding:
@@ -201,9 +203,11 @@ def find_most_similar_images(img_path:str, num_results:int=5):
     # Find max embedding:
     top_matches = []
     for db_img_file_path, db_img_embedding in zip(df_embeddings['file_path'], df_embeddings['embedding']):
-        similarity_score = cosine_similarity(target_embedding, db_img_embedding)
+        # top_matches needs to exclude the target image itself from being returned:
+        if os.path.samefile(db_img_file_path, img_path):
+            continue
 
-        # TODO: top_results needs to exclude the target image itself from being returned
+        similarity_score = cosine_similarity(target_embedding, db_img_embedding)
 
         # We use `heapq` and keep only N number of elements -- this prevents us from holding the entire dataset in memory:
         # Ensure heap has N number of elements (this is done by adding the first N items):
@@ -229,4 +233,16 @@ def display_similar_images(img_path:str, num_results:int=5):
         plt.title(file_path.split('/')[-1]) # use file name as figure title
         plt.imshow(img)
 
-display_similar_images('../data/e-commerce-product-images/Footwear/Men/Images/images_with_product_ids/20895.jpg')
+
+# + pycharm={"name": "#%%\n"}
+example_img_path = '../data/e-commerce-product-images/Footwear/Men/Images/images_with_product_ids/2089.jpg'
+
+print('----- Selected Image: -----')
+plt.imshow(cv2.imread(example_img_path))
+
+# + pycharm={"name": "#%%\n"}
+print('----- Similar Images: -----')
+display_similar_images(example_img_path)
+
+# + pycharm={"name": "#%%\n"}
+
