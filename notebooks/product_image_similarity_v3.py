@@ -19,7 +19,6 @@ import glob
 
 # ML/data science libraries:
 import numpy as np
-import pandas as pd
 from annoy import AnnoyIndex
 
 # TenserFlow/Keras classes:
@@ -153,20 +152,17 @@ VECTOR_DIM = model.get_layer('global_max_pooling2d').output.shape[1] # each embe
 # + pycharm={"name": "#%%\n"}
 # %%time
 
+# 147,000 items in a dict will take up about 7MB of RAM:
+file_lookup = {}
 # See Annoy docs: <https://github.com/spotify/annoy>
 annoy_ = AnnoyIndex(VECTOR_DIM, 'angular')
-
-df_embeddings = pd.DataFrame(columns=['id', 'file', 'file_path', 'embedding'], dtype=object)
 
 # TODO: can we optimize/speed-up this, perhaps via batch processing?
 for i, file_path_ in enumerate(file_paths):
     embedding_ = get_embedding(file_path_)
-    file_name_ = file_path_.split('/')[-1]
 
     annoy_.add_item(i, embedding_)
-
-    # TODO: this should be replaced with SQLite or dict:
-    df_embeddings = df_embeddings.append({'id': i, 'file': file_name_, 'file_path': file_path_, 'embedding': embedding_}, ignore_index=True, sort=False)
+    file_lookup[i] = file_path_
 
 # Build and save Annoy index:
 annoy_.build(NUM_HYPERPLANES)
@@ -185,19 +181,21 @@ def find_similar_images(img_path:str, num_results:int=5):
     target_embedding = get_embedding(img_path)
 
     ids_of_matches = annoy_.get_nns_by_vector(target_embedding, num_results)
-    top_matches = [{'file_path': df_embeddings.iloc[id]['file_path'], 'file_name': df_embeddings.iloc[id]['file']} for id in ids_of_matches]
+
+    top_matches = [file_lookup[id] for id in ids_of_matches]
     return top_matches
 
 
 # + pycharm={"name": "#%%\n"}
 def display_similar_images(img_path:str, num_results:int=5):
-    top_results = find_similar_images(img_path, num_results)
+    list_images = find_similar_images(img_path, num_results)
 
     # display multiple images; see <https://stackoverflow.com/q/19471814>:
-    for result in top_results: # recall `top_results` returns a tuple of (similarity, file_path)
-        img = cv2.imread(result['file_path'])
+    for file_path in list_images: # recall `top_results` returns a tuple of (similarity, file_path)
+        img = cv2.imread(file_path)
         plt.figure()
-        plt.title(result['file_name'])
+        file_name = file_path.split('/')[-1]
+        plt.title(file_name)
         plt.imshow(img)
 
 
