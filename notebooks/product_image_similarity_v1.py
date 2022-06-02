@@ -235,7 +235,7 @@ def display_similar_images(img_path:str, num_results:int=5):
 
 
 # + pycharm={"name": "#%%\n"}
-example_img_path = '../data/e-commerce-product-images/Footwear/Men/Images/images_with_product_ids/2089.jpg'
+example_img_path = '../data/e-commerce-product-images/Footwear/Men/Images/images_with_product_ids/3797.jpg'
 
 print('----- Selected Image: -----')
 plt.imshow(cv2.imread(example_img_path))
