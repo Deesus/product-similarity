@@ -84,12 +84,15 @@ model = Sequential([
     GlobalMaxPool2D()
 ])
 
+model.summary()
+
+# + pycharm={"name": "#%%\n"}
+# Save model:
+
 # N.b. we need to specify model version as the file directory, otherwise TensorFlow Serving will
 # throw an error that there aren't any servable model versions: <https://stackoverflow.com/q/45544928>:
 MODEL_VERSION = 3
 model.save(f'../models/resnet_similarity/{MODEL_VERSION}')
-
-model.summary()
 
 
 # + [markdown] pycharm={"name": "#%% md\n"}
@@ -121,15 +124,25 @@ def process_image(img: np.ndarray):
     :param img:
     :return {np.ndarray}: returns processed image
     """
-    # see comparison of different interpolation methods: <https://chadrick-kwag.net/cv2-resize-interpolation-methods/>
-    processed_img = cv2.resize(img, (IMG_HEIGHT, IMG_WIDTH), interpolation=cv2.INTER_CUBIC)
 
-    # We can use TF's ResNet `preprocess_input` <https://www.tensorflow.org/api_docs/python/tf/keras/applications/resnet_v2/preprocess_input>
-    # however, because the datasets are quite different, it might do more harm than good <https://stackoverflow.com/a/58250681>;
-    # we can therefore, simply divide by 255:
+    # When serving (via TensorFlow Serving), the model signature expects float type as input (enter `saved_model_cli show`
+    # in command line for details), but since cv2 reads images as float64, we need to convert it to float32. If we didn't cast the array,
+    # we would get this error: `Expects arg[0] to be float but double is provided`. N.b. np.float64 and np.float32 correspond to double
+    # and float types, respectively (in Java, C++, etc.); hence the error message, and reason for casting to float32.
+    # N.b. this isn't an issue during development/training.
+    processed_img = np.float32(img)
+
+    # see comparison of different interpolation methods: <https://chadrick-kwag.net/cv2-resize-interpolation-methods/>
+    processed_img = cv2.resize(processed_img, (IMG_HEIGHT, IMG_WIDTH), interpolation=cv2.INTER_CUBIC)
+
+    # We can use TF's ResNet `preprocess_input`:
+    # <https://www.tensorflow.org/api_docs/python/tf/keras/applications/resnet_v2/preprocess_input>; however, because
+    # the datasets are quite different, it might do more harm than good <https://stackoverflow.com/a/58250681>; we can
+    # therefore, simply divide by 255:
     processed_img = processed_img / 255
 
-    # ResNet model expects input shape (batch_size, img_height, img_width, channels) -- we need to add batch_size dimension:
+    # ResNet model expects input shape (batch_size, img_height, img_width, channels); therefore, we need to add
+    # batch_size dimension:
     processed_img = np.expand_dims(processed_img, axis=0)
     return processed_img
 
@@ -171,14 +184,14 @@ for i, file_path_ in enumerate(file_paths):
 
 # Build and save Annoy index:
 annoy_.build(NUM_HYPERPLANES)
-annoy_.save('../models/annoy_index/local.img_embedding.ann')
+annoy_.save('../data/annoy_index/img_embedding.ann')
 
 
 # + [markdown] pycharm={"name": "#%% md\n"}
 # ## Find Similar Images:
 
 # + pycharm={"name": "#%%\n"}
-def find_similar_images(img_path: str, num_results: int=5):
+def find_similar_images(img_path: str, num_results: int = 5):
     # N.b. if user searches for an image that already exists in database,
     # we DO want to return the exact same image; it's not a duplicate result.
 
@@ -192,7 +205,7 @@ def find_similar_images(img_path: str, num_results: int=5):
 
 
 # + pycharm={"name": "#%%\n"}
-def display_similar_images(img_path: str, num_results: int=5):
+def display_similar_images(img_path: str, num_results: int = 5):
     list_images = find_similar_images(img_path, num_results)
 
     # display multiple images; see <https://stackoverflow.com/q/19471814>:
@@ -205,7 +218,7 @@ def display_similar_images(img_path: str, num_results: int=5):
 
 
 # + pycharm={"name": "#%%\n"}
-example_img_path = '../data/e-commerce-product-images/Footwear/Men/Images/images_with_product_ids/3797.jpg'
+example_img_path = '../data/e-commerce-product-images/Footwear/Women/Images/images_with_product_ids/2610.jpg'
 
 print('----- Selected Image: -----')
 plt.imshow(cv2.imread(example_img_path))

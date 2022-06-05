@@ -196,7 +196,7 @@ df_similarity.head()
 # ## Find Similar Images:
 
 # + pycharm={"name": "#%%\n"}
-def find_most_similar_images(img_path: str, num_results: int=5):
+def find_most_similar_images(img_path: str, num_results: int = 5):
     # Load single image, process, and get embedding:
     target_embedding = get_embedding(img_path)
 
@@ -223,7 +223,7 @@ def find_most_similar_images(img_path: str, num_results: int=5):
 
 
 # + pycharm={"name": "#%%\n"}
-def display_similar_images(img_path: str, num_results: int=5):
+def display_similar_images(img_path: str, num_results: int = 5):
     top_results = find_most_similar_images(img_path, num_results)
 
     # display multiple images; see <https://stackoverflow.com/q/19471814>:
