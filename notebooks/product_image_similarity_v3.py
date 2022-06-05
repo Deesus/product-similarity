@@ -8,7 +8,7 @@
 #       format_version: '1.5'
 #       jupytext_version: 1.13.5
 #   kernelspec:
-#     display_name: Python 3
+#     display_name: Python 3 (ipykernel)
 #     language: python
 #     name: python3
 # ---
@@ -84,6 +84,11 @@ model = Sequential([
     GlobalMaxPool2D()
 ])
 
+# N.b. we need to specify model version as the file directory, otherwise TensorFlow Serving will
+# throw an error that there aren't any servable model versions: <https://stackoverflow.com/q/45544928>:
+MODEL_VERSION = 3
+model.save(f'../models/resnet_similarity/{MODEL_VERSION}')
+
 model.summary()
 
 
@@ -106,7 +111,7 @@ model.summary()
 # + pycharm={"name": "#%%\n"}
 # Helper methods:
 
-def process_image(img:np.ndarray):
+def process_image(img: np.ndarray):
     """ Pre-process images before feeding to model.
 
     Resizes image, scales (/255), and expands array dimension. The model requires specific input dimensions (shape),
@@ -128,11 +133,11 @@ def process_image(img:np.ndarray):
     processed_img = np.expand_dims(processed_img, axis=0)
     return processed_img
 
-def get_embedding(file_path:str):
+def get_embedding(file_path: str):
     img = cv2.imread(file_path)
     img = process_image(img)
     embedding = model.predict(img)
-    embedding = np.squeeze(embedding) # ensure output is 1D array
+    embedding = np.squeeze(embedding)  # ensure output is 1D array
 
     return embedding
 
@@ -166,14 +171,14 @@ for i, file_path_ in enumerate(file_paths):
 
 # Build and save Annoy index:
 annoy_.build(NUM_HYPERPLANES)
-annoy_.save('../models/local.img_embedding.ann')
+annoy_.save('../models/annoy_index/local.img_embedding.ann')
 
 
 # + [markdown] pycharm={"name": "#%% md\n"}
 # ## Find Similar Images:
 
 # + pycharm={"name": "#%%\n"}
-def find_similar_images(img_path:str, num_results:int=5):
+def find_similar_images(img_path: str, num_results: int=5):
     # N.b. if user searches for an image that already exists in database,
     # we DO want to return the exact same image; it's not a duplicate result.
 
@@ -187,7 +192,7 @@ def find_similar_images(img_path:str, num_results:int=5):
 
 
 # + pycharm={"name": "#%%\n"}
-def display_similar_images(img_path:str, num_results:int=5):
+def display_similar_images(img_path: str, num_results: int=5):
     list_images = find_similar_images(img_path, num_results)
 
     # display multiple images; see <https://stackoverflow.com/q/19471814>:

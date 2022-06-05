@@ -110,7 +110,7 @@ model.summary()
 # + pycharm={"name": "#%%\n"}
 # Helper methods:
 
-def cosine_similarity(embedding_1:np.ndarray, embedding_2:np.ndarray):
+def cosine_similarity(embedding_1: np.ndarray, embedding_2: np.ndarray):
     """ Calculates the cosine similarity of two vectors.
 
     :param embedding_1: An embedding vector.
@@ -121,7 +121,7 @@ def cosine_similarity(embedding_1:np.ndarray, embedding_2:np.ndarray):
     # `distance.cosine` computes distance, not similarity; subtract by 1 to get similarity:
     return 1 - spatial.distance.cosine(embedding_1, embedding_2)
 
-def process_image(img:np.ndarray):
+def process_image(img: np.ndarray):
     """ Pre-process images before feeding to model.
 
     Resizes image, scales (/255), and expands array dimension. The model requires specific input dimensions (shape),
@@ -143,7 +143,7 @@ def process_image(img:np.ndarray):
     processed_img = np.expand_dims(processed_img, axis=0)
     return processed_img
 
-def get_embedding(file_path:str):
+def get_embedding(file_path: str):
     img = cv2.imread(file_path)
     img = process_image(img)
     embedding = model.predict(img)
@@ -196,7 +196,7 @@ df_similarity.head()
 # ## Find Similar Images:
 
 # + pycharm={"name": "#%%\n"}
-def find_most_similar_images(img_path:str, num_results:int=5):
+def find_most_similar_images(img_path: str, num_results: int=5):
     # Load single image, process, and get embedding:
     target_embedding = get_embedding(img_path)
 
@@ -223,7 +223,7 @@ def find_most_similar_images(img_path:str, num_results:int=5):
 
 
 # + pycharm={"name": "#%%\n"}
-def display_similar_images(img_path:str, num_results:int=5):
+def display_similar_images(img_path: str, num_results: int=5):
     top_results = find_most_similar_images(img_path, num_results)
 
     # display multiple images; see <https://stackoverflow.com/q/19471814>:
