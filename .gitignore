@@ -1,8 +1,7 @@
 node_modules/
 dist/
 .ipynb_checkpoints
-data/
-models/
+__pycache__/
 
 # IDEs:
 .idea/
@@ -17,3 +16,7 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
+
+# Project specific:
+data/
+models/
