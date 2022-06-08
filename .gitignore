@@ -21,4 +21,4 @@ pnpm-debug.log*
 # Project specific:
 data/
 models/
-.next/
+.nuxt/
