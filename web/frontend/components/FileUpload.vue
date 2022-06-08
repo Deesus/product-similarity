@@ -1,32 +1,40 @@
 <template>
-    <div class="file-upload">
+    <v-card elevation="3" outlined :loading="isLoading">
+        <!-- v-list-items and v-slider ensures consistent padding for card; otherwise, the loading bar would
+        cause a jump in spacing when loading vs not loading: -->
+        <v-list-item class="py-3 px-5">
+            <v-list-item-content>
+                <div
+                    class="file-upload__dropzone"
+                    :class="{'file-upload__dropzone--over': isDragging}"
+                    @dragenter="isDragging = true"
+                    @dragleave="isDragging = false"
+                >
+                    <!-- ----- Initial state: ----- -->
+                    <div v-if="!file">
+                        <div class="file-upload__info" @drag="uploadFile">
+                            <img class="file-upload__icon" src="/upload_file.svg" alt="upload icon">
+                            <div class="pt-2">
+                                <span>Drag image here</span>
+                                <a>or browse</a>
+                            </div>
+                        </div>
+                        <input class="file-upload__input" type="file" @change="uploadFile">
+                    </div>
+                    <!-- ----- Uploaded state: ----- -->
+                    <div v-else>
+                        <div class="file-upload__uploaded-info">
+                            <span class="file-upload__title">Uploaded</span>
+                            <v-btn color="primary" @click="removeFile">
+                                Remove File
+                            </v-btn>
+                        </div>
+                    </div>
+                </div> <!-- /.file-upload__dropzone -->
+            </v-list-item-content>
+        </v-list-item>
         <!-- No file selected: -->
-        <div
-            v-if="!file"
-            :class="['file-upload__dropzone', dragging ? 'file-upload__over' : '']"
-            @dragenter="dragging = true"
-            @dragleave="dragging = false"
-        >
-            <div class="file-upload__info" @drag="uploadFile">
-                <img class="file-upload__icon" src="/icon-photo.svg" alt="icon of photo">
-                <div class="file-upload__title">
-                    <div>Drag image here</div>
-                    <div>or browse</div>
-                </div>
-            </div>
-            <input class="file-upload__input" type="file" @change="uploadFile">
-        </div>
-
-        <!-- File uploaded: -->
-        <div v-else class="file-upload__uploaded">
-            <div class="file-upload__uploaded-info">
-                <span class="file-upload__title">Uploaded</span>
-                <v-btn color="primary" @click="removeFile">
-                    Remove File
-                </v-btn>
-            </div>
-        </div>
-    </div>
+    </v-card>
 </template>
 
 <script>
@@ -37,12 +45,13 @@ export default {
     data() {
         return {
             file: '',
-            dragging: false
+            isDragging: false,
+            isLoading: false
         }
     },
     methods: {
         uploadFile(e) {
-            this.dragging = false
+            this.isDragging = false
 
             const files = e.target.files || e.dataTransfer.files
             const file = files?.[0]
@@ -51,16 +60,20 @@ export default {
             if(!file) {
                 return
             } else if(!file.type.match('image')) {
+                // TODO: replace alerts
                 alert('please select an image file')
                 return
             } else if(file.size > 5000000) { // Limit file size to 5MB
+                // TODO: replace alerts
                 alert('please check file size no over 5 MB.')
                 return
             }
 
             this.file = file
+            this.isLoading = true
 
-            // N.b. we need to use `FormData` and set `Content-Type` in order for API to handle file:
+            // N.b. we need to use `FormData` and set `Content-Type` in order for API to handle file;
+            // see <https://stackoverflow.com/q/43013858>:
             const formData = new FormData()
             formData.append('file', this.file)
             axios.post(
@@ -79,6 +92,9 @@ export default {
                 .catch((error) => {
                     console.error(error)
                 })
+                .finally(() => {
+                    this.isLoading = false
+                })
         },
         removeFile() {
             this.file = ''
@@ -90,15 +106,15 @@ export default {
 <style scoped lang="scss">
     .file-upload {
         &__dropzone {
-           width: 80%;
-            height: 200px;
+            height: 110px;
             position: relative;
             border-radius: 5px;
-            border: 2px dashed rgba(0,0,0,.12);
-            transition: 130ms ease-in-out border-color;
+            border: 3px dashed rgba(0, 0, 0, 0);
+            transition: 150ms ease-in-out border-color;
 
-            &:hover {
-                border-color: $color-primary;
+            &:hover,
+            &.file-upload__dropzone--over {
+                border-color: $color-gray;
             }
         }
 
@@ -124,31 +140,8 @@ export default {
         }
 
         &__icon {
-            width: 100px;
             height: auto;
-            opacity: 0.5;
-        }
-
-        &__title {
-            color: #787878;
-        }
-
-        &__upload-limit-info {
-            display: flex;
-            justify-content: flex-start;
-            flex-direction: column;
-        }
-
-        &__over {
-            background: #5C5C5C;
-            opacity: 0.8;
-        }
-
-        &__uploaded {
-            width: 80%;
-            height: 200px;
-            position: relative;
-            border: 2px dashed #eee;
+            opacity: 0.3;
         }
 
         &__uploaded-info {

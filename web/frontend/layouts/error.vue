@@ -1,13 +1,15 @@
 <template>
-    <v-app dark>
-        <h1 v-if="error.statusCode === 404">
+    <v-app light class="text-center">
+        <h1 v-if="error.statusCode === 404" class="font-weight-light">
             {{ pageNotFound }}
         </h1>
         <h1 v-else>
             {{ otherError }}
         </h1>
-        <NuxtLink to="/">
-            Home page
+        <NuxtLink to="/" class="pt-5">
+            <v-btn text color="primary">
+                Back to Home page
+            </v-btn>
         </NuxtLink>
     </v-app>
 </template>
@@ -29,17 +31,10 @@ export default {
         }
     },
     head() {
-        const title =
-            this.error.statusCode === 404 ? this.pageNotFound : this.otherError
+        const title = this.error.statusCode === 404 ? this.pageNotFound : this.otherError
         return {
             title
         }
     }
 }
 </script>
-
-<style scoped>
-h1 {
-    font-size: 30px;
-}
-</style>
