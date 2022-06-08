@@ -2,6 +2,7 @@ node_modules/
 dist/
 .ipynb_checkpoints
 __pycache__/
+.eslintcache
 
 # IDEs:
 .idea/
@@ -20,3 +21,4 @@ pnpm-debug.log*
 # Project specific:
 data/
 models/
+.next/
