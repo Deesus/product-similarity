@@ -6,7 +6,9 @@ import grpc
 from tensorflow_serving.apis import predict_pb2
 from tensorflow_serving.apis import prediction_service_pb2_grpc
 from tensorflow import make_tensor_proto, make_ndarray
-import pathlib
+from pathlib import Path
+
+from ..db import get_db_connection
 
 model_client = Blueprint('model_client', __name__)
 
@@ -21,7 +23,7 @@ VECTOR_DIM = 2048  # Equal to final layer (global_max_pooling2d) in model
 # ########## Load Annoy index (k-approximate nearest neighbors): ##########
 annoy_ = AnnoyIndex(VECTOR_DIM, 'angular')
 # File path assumes cwd is the `web/` folder:
-annoy_index_path = str(pathlib.Path('./backend/model_client/annoy_index/img_embedding.ann').resolve())
+annoy_index_path = str(Path('./backend/model_client/annoy_index/img_embedding.ann').resolve())
 annoy_.load(annoy_index_path)
 
 
@@ -59,6 +61,10 @@ def process_image(img: np.ndarray):
     return processed_img
 
 
+def query_product_by_id(id: int, cursor):
+    return cursor.execute('SELECT * FROM products WHERE id=?', (id,)).fetchone()
+
+
 # TODO: need to filter uploaded files to only accept images:
 def find_similar_images(file: bytes, server_address: str, num_results: int = 5):
     # We have to convert byte string for cv2/numpy; see <https://stackoverflow.com/q/17170752>:
@@ -70,11 +76,16 @@ def find_similar_images(file: bytes, server_address: str, num_results: int = 5):
     # Get embedding from model server:
     target_embedding = get_prediction(processed_image, server_address)
 
-    # Find and return matches:
+    # Let Annoy find top matches:
     ids_of_matches = annoy_.get_nns_by_vector(target_embedding, num_results)
 
-    # TODO: should return list of file paths -- need to implement lookup table:
-    return ids_of_matches
+    # Get list of image paths from db:
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    list_of_file_paths = [query_product_by_id(id, cursor)['file_path'] for id in ids_of_matches]
+    conn.close()
+
+    return list_of_file_paths
 
 
 def get_prediction(img: np.ndarray, server_address: str):

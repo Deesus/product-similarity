@@ -16,7 +16,7 @@ def index():
         if uploaded_file != b'':
             # TODO: implement error case if client doesn't return successful response:
             similar_images_ids = find_similar_images(uploaded_file, 'localhost:8500')
-            return jsonify(ids=similar_images_ids)
+            return jsonify(file_paths=similar_images_ids)
     else:
         return jsonify(
             message="No file uploaded",
