@@ -10,10 +10,16 @@
             </v-col>
         </v-row>
 
+        <!-- ----- Upload image dropzone: ----- -->
         <v-row justify="center" align="center">
             <v-col cols="12" sm="8" md="6">
                 <FileUpload />
             </v-col>
+        </v-row>
+
+        <!-- ----- Display results: ----- -->
+        <v-row>
+            <v-col />
         </v-row>
     </div>
 </template>

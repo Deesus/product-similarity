@@ -2,37 +2,39 @@
     <v-card elevation="3" outlined :loading="isLoading">
         <!-- v-list-items and v-slider ensures consistent padding for card; otherwise, the loading bar would
         cause a jump in spacing when loading vs not loading: -->
-        <v-list-item class="py-3 px-5">
-            <v-list-item-content>
-                <div
-                    class="file-upload__dropzone"
-                    :class="{'file-upload__dropzone--over': isDragging}"
-                    @dragenter="isDragging = true"
-                    @dragleave="isDragging = false"
-                >
-                    <!-- ----- Initial state: ----- -->
-                    <div v-if="!file">
-                        <div class="file-upload__info" @drag="uploadFile">
-                            <img class="file-upload__icon" src="/upload_file.svg" alt="upload icon">
-                            <div class="pt-2">
-                                <span>Drag image here</span>
-                                <a>or browse</a>
+        <v-list>
+            <v-list-item class="py-3 px-5">
+                <v-list-item-content>
+                    <div
+                        class="file-upload__dropzone"
+                        :class="{'file-upload__dropzone--over': isDragging}"
+                        @dragenter="isDragging = true"
+                        @dragleave="isDragging = false"
+                    >
+                        <!-- ----- Initial state: ----- -->
+                        <div v-if="!file">
+                            <div class="file-upload__info" @drag="uploadFile">
+                                <img class="file-upload__icon" src="/upload_file.svg" alt="upload icon">
+                                <div class="pt-2">
+                                    <span>Drag image here</span>
+                                    <a>or browse</a>
+                                </div>
+                            </div>
+                            <input class="file-upload__input" type="file" @change="uploadFile">
+                        </div>
+                        <!-- ----- Uploaded state: ----- -->
+                        <div v-else>
+                            <div class="file-upload__uploaded-info">
+                                <span class="file-upload__title">Uploaded</span>
+                                <v-btn color="primary" @click="removeFile">
+                                    Remove File
+                                </v-btn>
                             </div>
                         </div>
-                        <input class="file-upload__input" type="file" @change="uploadFile">
-                    </div>
-                    <!-- ----- Uploaded state: ----- -->
-                    <div v-else>
-                        <div class="file-upload__uploaded-info">
-                            <span class="file-upload__title">Uploaded</span>
-                            <v-btn color="primary" @click="removeFile">
-                                Remove File
-                            </v-btn>
-                        </div>
-                    </div>
-                </div> <!-- /.file-upload__dropzone -->
-            </v-list-item-content>
-        </v-list-item>
+                    </div> <!-- /.file-upload__dropzone -->
+                </v-list-item-content>
+            </v-list-item>
+        </v-list>
         <!-- No file selected: -->
     </v-card>
 </template>

@@ -1,3 +1,4 @@
+from flask import Blueprint
 import numpy as np
 import cv2
 from annoy import AnnoyIndex
@@ -6,6 +7,8 @@ from tensorflow_serving.apis import predict_pb2
 from tensorflow_serving.apis import prediction_service_pb2_grpc
 from tensorflow import make_tensor_proto, make_ndarray
 import pathlib
+
+model_client = Blueprint('model_client', __name__)
 
 
 # ########## Constants: ##########
@@ -124,8 +127,3 @@ def get_prediction(img: np.ndarray, server_address: str):
     # `output` embedding is rank-1 array with shape = (VECTOR_DIM,):
     output = make_ndarray(response.outputs[output_name])[-1]
     return output
-
-
-# ########## Main: ##########
-if __name__ == '__main__':
-    pass
