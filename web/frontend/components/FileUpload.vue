@@ -3,7 +3,7 @@
         <!-- v-list-items and v-slider ensures consistent padding for card; otherwise, the loading bar would
         cause a jump in spacing when loading vs not loading: -->
         <v-list>
-            <v-list-item class="py-3 px-5">
+            <v-list-item class="py-2 px-6">
                 <v-list-item-content>
                     <div
                         class="file-upload__dropzone"
@@ -73,6 +73,7 @@ export default {
 
             this.file = file
             this.isLoading = true
+            this.$emit('set-is-loading', true)
 
             // N.b. we need to use `FormData` and set `Content-Type` in order for API to handle file;
             // see <https://stackoverflow.com/q/43013858>:
@@ -87,15 +88,16 @@ export default {
                     }
                 })
                 .then((response) => {
-                    // TODO: emit successful response:
-                    console.log('----- response: -----')
-                    console.log(response)
+                    this.$emit('get-products', {
+                        'file-paths': response?.data?.file_paths
+                    })
                 })
                 .catch((error) => {
                     console.error(error)
                 })
                 .finally(() => {
                     this.isLoading = false
+                    this.$emit('set-is-loading', false)
                 })
         },
         removeFile() {

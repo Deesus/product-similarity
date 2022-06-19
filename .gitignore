@@ -22,5 +22,9 @@ pnpm-debug.log*
 data/
 models/
 .nuxt/
+
+# Binary files:
 *.db
 *.db-journal
+# annoy index is a too large and can't be diffed anyway:
+*.ann

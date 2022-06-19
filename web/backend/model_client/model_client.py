@@ -66,7 +66,7 @@ def query_product_by_id(id: int, cursor):
 
 
 # TODO: need to filter uploaded files to only accept images:
-def find_similar_images(file: bytes, server_address: str, num_results: int = 5):
+def find_similar_images(file: bytes, server_address: str, num_results: int = 6):
     # We have to convert byte string for cv2/numpy; see <https://stackoverflow.com/q/17170752>:
     img_np = np.fromstring(file, np.uint8)  # (image) file represented as numpy array
     img = cv2.imdecode(img_np, cv2.IMREAD_UNCHANGED)
