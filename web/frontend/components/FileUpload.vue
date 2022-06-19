@@ -5,37 +5,44 @@
         <v-list>
             <v-list-item class="py-2 px-6">
                 <v-list-item-content>
-                    <div
-                        class="file-upload__dropzone"
-                        :class="{'file-upload__dropzone--over': isDragging}"
-                        @dragenter="isDragging = true"
-                        @dragleave="isDragging = false"
-                    >
-                        <!-- ----- Initial state: ----- -->
-                        <div v-if="!file">
-                            <div class="file-upload__info" @drag="uploadFile">
-                                <img class="file-upload__icon" src="/upload_file.svg" alt="upload icon">
-                                <div class="pt-2">
-                                    <span>Drag image here</span>
-                                    <a>or browse</a>
+                    <v-row>
+                        <!-- ----- Selected product image: ----- -->
+                        <v-col cols="12" sm="4" lg="3" class="d-flex align-center justify-center justify-sm-start">
+                            <v-avatar v-if="selectedImg" size="130">
+                                <v-img :src="selectedImg" alt="selected product image" />
+                            </v-avatar>
+                            <v-img
+                                v-else
+                                width="100"
+                                max-width="100"
+                                height="auto"
+                                src="/package.svg"
+                                alt="logo of package box"
+                            />
+                        </v-col>
+
+                        <!-- ----- Drop zone: ----- -->
+                        <v-col cols="12" sm="8" lg="9">
+                            <div
+                                class="file-upload__dropzone"
+                                :class="{'file-upload__dropzone--over': isDragging}"
+                                @dragenter="isDragging = true"
+                                @dragleave="isDragging = false"
+                            >
+                                <div class="file-upload__info" @drag="uploadFile">
+                                    <img class="file-upload__icon" src="/upload_file.svg" alt="upload icon">
+                                    <div class="pt-2">
+                                        <span>Drag image here</span>
+                                        <a>or browse</a>
+                                    </div>
                                 </div>
+                                <input ref="inputUpload" class="file-upload__input" type="file" @change="uploadFile">
                             </div>
-                            <input class="file-upload__input" type="file" @change="uploadFile">
-                        </div>
-                        <!-- ----- Uploaded state: ----- -->
-                        <div v-else>
-                            <div class="file-upload__uploaded-info">
-                                <span class="file-upload__title">Uploaded</span>
-                                <v-btn color="primary" @click="removeFile">
-                                    Remove File
-                                </v-btn>
-                            </div>
-                        </div>
-                    </div> <!-- /.file-upload__dropzone -->
+                        </v-col>
+                    </v-row>
                 </v-list-item-content>
             </v-list-item>
         </v-list>
-        <!-- No file selected: -->
     </v-card>
 </template>
 
@@ -46,9 +53,9 @@ export default {
     name: 'FileUpload',
     data() {
         return {
-            file: '',
             isDragging: false,
-            isLoading: false
+            isLoading: false,
+            selectedImg: ''
         }
     },
     methods: {
@@ -71,14 +78,12 @@ export default {
                 return
             }
 
-            this.file = file
             this.isLoading = true
-            this.$emit('set-is-loading', true)
 
             // N.b. we need to use `FormData` and set `Content-Type` in order for API to handle file;
             // see <https://stackoverflow.com/q/43013858>:
             const formData = new FormData()
-            formData.append('file', this.file)
+            formData.append('file', file)
             axios.post(
                 'http://localhost:5000/file-upload',
                 formData,
@@ -87,21 +92,37 @@ export default {
                         'Content-Type': 'multipart/form-data'
                     }
                 })
+                // if successful response:
                 .then((response) => {
                     this.$emit('get-products', {
                         'file-paths': response?.data?.file_paths
                     })
+                    this.previewFile(file)
                 })
                 .catch((error) => {
                     console.error(error)
                 })
                 .finally(() => {
                     this.isLoading = false
-                    this.$emit('set-is-loading', false)
                 })
         },
         removeFile() {
-            this.file = ''
+            this.selectedImg = ''
+            // We need to reset the input (i.e. remove the uploaded file from input); otherwise, if user uploads an
+            // image, calls `removeFile` method and trys uploading the same image, nothing will happen. If it's the same
+            // image, upload handler won't trigger at all; hence the reason for clearing the input:
+            this.$refs.inputUpload.value = ''
+        },
+        previewFile(file) {
+            /**
+             * See <https://jsfiddle.net/jykmapb8> -- most tutorials use the same method for creating an upload preview.
+             * @type {FileReader}
+             */
+            const reader = new FileReader()
+            reader.onload = (event) => {
+                this.selectedImg = event.target.result
+            }
+            reader.readAsDataURL(file)
         }
     }
 }
@@ -110,15 +131,20 @@ export default {
 <style scoped lang="scss">
     .file-upload {
         &__dropzone {
-            height: 110px;
+            flex-grow: 1;
+            height: 130px;
             position: relative;
             border-radius: 5px;
-            border: 3px dashed rgba(0, 0, 0, 0);
-            transition: 150ms ease-in-out border-color;
+            border: 3px dashed $color-gray;
+            transition: 200ms ease-in-out border-color;
+
+            @media screen and (max-width: 599px) {
+                height: 110px;
+            }
 
             &:hover,
             &.file-upload__dropzone--over {
-                border-color: $color-gray;
+                border-color: darken($color-gray, 15%);
             }
         }
 
@@ -146,18 +172,6 @@ export default {
         &__icon {
             height: auto;
             opacity: 0.3;
-        }
-
-        &__uploaded-info {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            color: #A8A8A8;
-            position: absolute;
-            top: 50%;
-            width: 100%;
-            transform: translate(0, -50%);
-            text-align: center;
         }
     }
 </style>

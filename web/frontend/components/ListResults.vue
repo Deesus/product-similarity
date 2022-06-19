@@ -38,14 +38,7 @@ export default {
         images: {
             type: Array,
             default: () => []
-        },
-        isLoading: {
-            type: Boolean,
-            default: false
         }
     }
 }
 </script>
-
-<style scoped>
-</style>
