@@ -13,3 +13,9 @@ export default {
     name: 'DefaultLayout'
 }
 </script>
+
+<style lang="scss">
+    .container {
+        height: 100%;
+    }
+</style>
