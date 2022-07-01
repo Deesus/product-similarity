@@ -2,8 +2,8 @@
     <v-card outlined class="rounded-lg pa-4">
         <v-row>
             <v-col
-                v-for="file_path in images"
-                :key="file_path"
+                v-for="filePath in filePaths_"
+                :key="filePath"
                 cols="12"
                 sm="6"
                 md="4"
@@ -11,10 +11,11 @@
                 class="d-flex child-flex justify-center"
             >
                 <v-img
-                    :src="file_path"
+                    :src="filePath"
                     aspect-ratio="1"
                     max-width="256"
-                    class="grey lighten-2"
+                    class="cursor-pointer grey lighten-2"
+                    @click="imgClick(filePath)"
                 >
                     <template #placeholder>
                         <v-row
@@ -32,12 +33,44 @@
 </template>
 
 <script>
+import axios from 'axios'
+
 export default {
     name: 'ListResults',
     props: {
-        images: {
+        filePaths: {
             type: Array,
             default: () => []
+        }
+    },
+    data() {
+        return {
+            filePaths_: []
+        }
+    },
+    watch: {
+        // If prop changes, `filePaths_` equals the prop:
+        filePaths() {
+            this.filePaths_ = this.filePaths
+        }
+    },
+    methods: {
+        imgClick(imgPath) {
+            this.$emit('loading', true)
+
+            axios.put(
+                'http://localhost:5000/find-related',
+                { imgPath })
+                .then((response) => {
+                    this.$emit('select-img', imgPath)
+                    this.filePaths_ = response?.data?.file_paths
+                })
+                .catch((error) => {
+                    console.error(error)
+                })
+                .finally(() => {
+                    this.$emit('loading', false)
+                })
         }
     }
 }

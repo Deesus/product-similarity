@@ -12,14 +12,16 @@
         <!-- ----- Upload image dropzone: ----- -->
         <v-row justify="center" align="center">
             <v-col cols="12" sm="8" md="6">
-                <FileUpload @get-products="getProducts" />
+                <FileUpload :thumbnail="thumbnail" :is-loading="isLoading" @get-products="getProducts" @select-img="setThumbnail" />
             </v-col>
         </v-row>
 
         <!-- ----- Display results: ----- -->
-        <v-row v-if="images.length" class="mt-15">
+        <!-- We need to use `v-show` instead of `v-if` because we are watching the `filPaths` prop; since the component
+        is not rendered initially, no props exist and therefore there isn't a prop change the first time: -->
+        <v-row v-show="filePaths.length" class="mt-15">
             <v-col cols="12">
-                <ListResults :images="images" />
+                <ListResults :file-paths="filePaths" @select-img="setThumbnail" @loading="setLoading" />
             </v-col>
         </v-row>
     </div>
@@ -34,12 +36,46 @@ export default {
     components: { FileUpload, ListResults },
     data() {
         return {
-            images: []
+            filePaths: [],
+            thumbnail: null,
+            isLoading: false
         }
     },
     methods: {
         getProducts({ 'file-paths': filePaths }) {
-            this.images = filePaths
+            this.filePaths = filePaths
+        },
+        /**
+         * Set thumbnail image.
+         *
+         * @param file {String | Blob}: The thumbnail image; can be a file path or blob. If string type, then arg is a
+         *      file path (url); if it is blob, the file is the uploaded image.
+         */
+        setThumbnail(file) {
+            if(!file) {
+                return
+            }
+
+            // See <https://jsfiddle.net/jykmapb8> -- most tutorials use the same method for creating an upload preview:
+            if(file instanceof Blob) {
+                const reader = new FileReader()
+                reader.onload = (event) => {
+                    this.thumbnail = event.target.result
+                }
+                reader.readAsDataURL(file)
+            } else {
+                this.thumbnail = file
+            }
+        },
+        /**
+         * Set data loading state handler.
+         *
+         * This simply means showing the progress bar on components while server processes/fetches data.
+         *
+         * @param isLoading {Boolean}: Emitted value specifying if data is being loaded.
+         */
+        setLoading(isLoading) {
+            this.isLoading = isLoading
         }
     }
 }

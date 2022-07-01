@@ -1,5 +1,5 @@
 <template>
-    <v-card elevation="3" outlined :loading="isLoading">
+    <v-card elevation="3" outlined :loading="isLoading_">
         <!-- v-list-items and v-slider ensures consistent padding for card; otherwise, the loading bar would
         cause a jump in spacing when loading vs not loading: -->
         <v-list>
@@ -8,8 +8,8 @@
                     <v-row>
                         <!-- ----- Selected product image: ----- -->
                         <v-col cols="12" sm="4" lg="3" class="d-flex align-center justify-center justify-sm-start">
-                            <v-avatar v-if="selectedImg" size="130">
-                                <v-img :src="selectedImg" alt="selected product image" />
+                            <v-avatar v-if="thumbnail" size="130">
+                                <v-img :src="thumbnail" alt="selected product image" />
                             </v-avatar>
                             <v-img
                                 v-else
@@ -51,11 +51,25 @@ import axios from 'axios'
 
 export default {
     name: 'FileUpload',
+    props: {
+        isLoading: {
+            type: Boolean,
+            default: false
+        },
+        thumbnail: {
+            type: String,
+            default: ''
+        }
+    },
     data() {
         return {
             isDragging: false,
-            isLoading: false,
-            selectedImg: ''
+            isLoading_: false
+        }
+    },
+    watch: {
+        isLoading() {
+            this.isLoading_ = this.isLoading
         }
     },
     methods: {
@@ -78,13 +92,15 @@ export default {
                 return
             }
 
-            this.isLoading = true
+            this.isLoading_ = true
 
             // N.b. we need to use `FormData` and set `Content-Type` in order for API to handle file;
             // see <https://stackoverflow.com/q/43013858>:
             const formData = new FormData()
             formData.append('file', file)
-            axios.post(
+            // TODO: Technically, this should be two API calls: PUT to put the resource on the server,
+            // and GET to fetch the results
+            axios.put(
                 'http://localhost:5000/file-upload',
                 formData,
                 {
@@ -97,32 +113,21 @@ export default {
                     this.$emit('get-products', {
                         'file-paths': response?.data?.file_paths
                     })
-                    this.previewFile(file)
+                    this.$emit('select-img', file)
                 })
                 .catch((error) => {
                     console.error(error)
                 })
                 .finally(() => {
-                    this.isLoading = false
+                    this.isLoading_ = false
                 })
         },
         removeFile() {
-            this.selectedImg = ''
+            this.$emit('select-img', '')
             // We need to reset the input (i.e. remove the uploaded file from input); otherwise, if user uploads an
             // image, calls `removeFile` method and trys uploading the same image, nothing will happen. If it's the same
             // image, upload handler won't trigger at all; hence the reason for clearing the input:
             this.$refs.inputUpload.value = ''
-        },
-        previewFile(file) {
-            /**
-             * See <https://jsfiddle.net/jykmapb8> -- most tutorials use the same method for creating an upload preview.
-             * @type {FileReader}
-             */
-            const reader = new FileReader()
-            reader.onload = (event) => {
-                this.selectedImg = event.target.result
-            }
-            reader.readAsDataURL(file)
         }
     }
 }
