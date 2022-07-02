@@ -83,17 +83,16 @@ export default {
             // Validate uploaded file:
             if(!file) {
                 return
-            } else if(!file.type.match('image')) {
-                this.$emit('warning', 'Please select an image file')
+            } else if(!['image/jpeg', 'image/png'].includes(file.type)) {
+                this.$emit('error', 'Please select a valid image file (jpg or png)')
                 return
             } else if(file.size > 5000000) { // Limit file size to 5MB
-                this.$emit('warning', 'Please check file size no over 5 MB')
+                this.$emit('error', 'Please check file size no over 5 MB')
                 return
             }
 
             this.isLoading_ = true
             this.$emit('error', '')
-            this.$emit('warning', '')
 
             // N.b. we need to use `FormData` and set `Content-Type` in order for API to handle file;
             // see <https://stackoverflow.com/q/43013858>:
@@ -109,12 +108,18 @@ export default {
                         'Content-Type': 'multipart/form-data'
                     }
                 })
-                // if successful response:
                 .then((response) => {
-                    this.$emit('get-products', {
-                        'file-paths': response?.data?.file_paths
-                    })
-                    this.$emit('select-img', file)
+                    // if error response:
+                    if(response?.data?.category === 'error') {
+                        const errorMessage = response?.data?.message || 'Invalid file type: only jpg and png files are accepted.'
+                        this.$emit('error', errorMessage)
+                    // if successful response:
+                    } else {
+                        this.$emit('get-products', {
+                            'file-paths': response?.data?.file_paths
+                        })
+                        this.$emit('select-img', file)
+                    }
                 })
                 .catch((error) => {
                     this.$emit('error', error)

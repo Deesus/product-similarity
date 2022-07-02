@@ -15,24 +15,23 @@
                 <FileUpload
                     :thumbnail="thumbnail"
                     :is-loading="isLoading"
-                    @warning="showUploadWarning"
-                    @error="showUploadError"
                     @get-products="getProducts"
                     @select-img="setThumbnail"
+                    @error="showErrorAlert"
                 />
             </v-col>
         </v-row>
 
-        <!-- ----- Error/Warning alerts: ----- -->
+        <!-- ----- Error/Warning alert: ----- -->
         <v-row justify="center">
             <v-col cols="12" sm="8" md="6">
                 <v-alert
-                    v-show="uploadWarningText"
+                    v-show="uploadErrorText"
                     dense
                     outlined
                     type="error"
                 >
-                    {{ uploadWarningText }}
+                    {{ uploadErrorText }}
                 </v-alert>
             </v-col>
         </v-row>
@@ -46,7 +45,7 @@
                     :file-paths="filePaths"
                     @select-img="setThumbnail"
                     @loading="setLoading"
-                    @error="showUploadError"
+                    @error="showErrorAlert"
                 />
             </v-col>
         </v-row>
@@ -65,8 +64,7 @@ export default {
             filePaths: [],
             thumbnail: null,
             isLoading: false,
-            uploadErrorText: '',
-            uploadWarningText: ''
+            uploadErrorText: ''
         }
     },
     methods: {
@@ -105,10 +103,7 @@ export default {
         setLoading(isLoading) {
             this.isLoading = isLoading
         },
-        showUploadWarning(message) {
-            this.uploadWarningText = message
-        },
-        showUploadError(message) {
+        showErrorAlert(message) {
             this.uploadErrorText = message
         }
     }
