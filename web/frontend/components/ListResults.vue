@@ -23,7 +23,7 @@
                             align="center"
                             justify="center"
                         >
-                            <v-progress-circular color="grey lighten-5" />
+                            <v-progress-circular indeterminate color="blue lighten-3" />
                         </v-row>
                     </template>
                 </v-img>
@@ -57,6 +57,7 @@ export default {
     methods: {
         imgClick(imgPath) {
             this.$emit('loading', true)
+            this.$emit('error', '')
 
             axios.put(
                 'http://localhost:5000/find-related',
@@ -66,7 +67,7 @@ export default {
                     this.filePaths_ = response?.data?.file_paths
                 })
                 .catch((error) => {
-                    console.error(error)
+                    this.$emit('error', error)
                 })
                 .finally(() => {
                     this.$emit('loading', false)

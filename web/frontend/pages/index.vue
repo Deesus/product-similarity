@@ -12,7 +12,28 @@
         <!-- ----- Upload image dropzone: ----- -->
         <v-row justify="center" align="center">
             <v-col cols="12" sm="8" md="6">
-                <FileUpload :thumbnail="thumbnail" :is-loading="isLoading" @get-products="getProducts" @select-img="setThumbnail" />
+                <FileUpload
+                    :thumbnail="thumbnail"
+                    :is-loading="isLoading"
+                    @warning="showUploadWarning"
+                    @error="showUploadError"
+                    @get-products="getProducts"
+                    @select-img="setThumbnail"
+                />
+            </v-col>
+        </v-row>
+
+        <!-- ----- Error/Warning alerts: ----- -->
+        <v-row justify="center">
+            <v-col cols="12" sm="8" md="6">
+                <v-alert
+                    v-show="uploadWarningText"
+                    dense
+                    outlined
+                    type="error"
+                >
+                    {{ uploadWarningText }}
+                </v-alert>
             </v-col>
         </v-row>
 
@@ -21,7 +42,12 @@
         is not rendered initially, no props exist and therefore there isn't a prop change the first time: -->
         <v-row v-show="filePaths.length" class="mt-15">
             <v-col cols="12">
-                <ListResults :file-paths="filePaths" @select-img="setThumbnail" @loading="setLoading" />
+                <ListResults
+                    :file-paths="filePaths"
+                    @select-img="setThumbnail"
+                    @loading="setLoading"
+                    @error="showUploadError"
+                />
             </v-col>
         </v-row>
     </div>
@@ -38,7 +64,9 @@ export default {
         return {
             filePaths: [],
             thumbnail: null,
-            isLoading: false
+            isLoading: false,
+            uploadErrorText: '',
+            uploadWarningText: ''
         }
     },
     methods: {
@@ -76,6 +104,12 @@ export default {
          */
         setLoading(isLoading) {
             this.isLoading = isLoading
+        },
+        showUploadWarning(message) {
+            this.uploadWarningText = message
+        },
+        showUploadError(message) {
+            this.uploadErrorText = message
         }
     }
 }

@@ -9,10 +9,11 @@
                         <!-- ----- Selected product image: ----- -->
                         <v-col cols="12" sm="4" lg="3" class="d-flex align-center justify-center justify-sm-start">
                             <v-avatar v-if="thumbnail" size="130">
-                                <v-img :src="thumbnail" alt="selected product image" />
+                                <v-img :src="thumbnail" contain alt="selected product image" />
                             </v-avatar>
                             <v-img
                                 v-else
+                                contain
                                 width="100"
                                 max-width="100"
                                 height="auto"
@@ -83,16 +84,16 @@ export default {
             if(!file) {
                 return
             } else if(!file.type.match('image')) {
-                // TODO: replace alerts
-                alert('please select an image file')
+                this.$emit('warning', 'Please select an image file')
                 return
             } else if(file.size > 5000000) { // Limit file size to 5MB
-                // TODO: replace alerts
-                alert('please check file size no over 5 MB.')
+                this.$emit('warning', 'Please check file size no over 5 MB')
                 return
             }
 
             this.isLoading_ = true
+            this.$emit('error', '')
+            this.$emit('warning', '')
 
             // N.b. we need to use `FormData` and set `Content-Type` in order for API to handle file;
             // see <https://stackoverflow.com/q/43013858>:
@@ -116,7 +117,7 @@ export default {
                     this.$emit('select-img', file)
                 })
                 .catch((error) => {
-                    console.error(error)
+                    this.$emit('error', error)
                 })
                 .finally(() => {
                     this.isLoading_ = false
