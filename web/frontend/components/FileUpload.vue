@@ -8,7 +8,7 @@
                     <v-row>
                         <!-- ----- Selected product image: ----- -->
                         <v-col cols="12" sm="4" lg="3" class="d-flex align-center justify-center justify-sm-start">
-                            <v-avatar v-if="thumbnail" size="130">
+                            <v-avatar v-if="thumbnail" tile size="130">
                                 <v-img :src="thumbnail" contain alt="selected product image" />
                             </v-avatar>
                             <v-img
