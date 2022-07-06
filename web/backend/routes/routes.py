@@ -7,7 +7,7 @@ api = Blueprint('api', __name__)
 CORS(api)
 
 
-@api.route('/file-upload', methods=['PUT'])
+@api.route('/api/file-upload', methods=['PUT'])
 def file_upload():
     uploaded_file = request.files['file']
 
@@ -25,17 +25,19 @@ def file_upload():
     # Recall that using `.read()` moves the cursor to EOF; hence the reason we don't check for empty bytes
     # until after (safely) setting the value of `uploaded_file`:
     if uploaded_file != b'':
+        # TODO: does this url need to be changed?
         similar_images_ids = find_similar_images(uploaded_file, 'localhost:8500')
         return jsonify(file_paths=similar_images_ids)
 
 
-@api.route('/find-related', methods=['PUT'])
-def find_related_item():
+@api.route('/api/find-related', methods=['PUT'])
+def find_related_items():
     img_url = request.get_json()['imgPath']
     response = urlopen(img_url)
     # TODO: is there any real performance gains by converting to bytearray first (rather than directly to bytes)?
     file = bytearray(response.read())
     file = bytes(file)
+    # TODO: does this url need to be changed?
     similar_images_ids = find_similar_images(file, 'localhost:8500')
 
     return jsonify(file_paths=similar_images_ids)

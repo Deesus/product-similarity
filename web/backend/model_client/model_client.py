@@ -5,6 +5,7 @@ from annoy import AnnoyIndex
 import grpc
 from tensorflow_serving.apis import predict_pb2
 from tensorflow_serving.apis import prediction_service_pb2_grpc
+# TODO: Is there an alternative to `make_tensor_proto` so that we don't have to install the entire Tensorflow package?
 from tensorflow import make_tensor_proto, make_ndarray
 from pathlib import Path
 
