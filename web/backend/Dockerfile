@@ -15,8 +15,6 @@ RUN apt-get update
 # Needed for Annoy:
 RUN apt-get install -y --no-install-recommends gcc
 RUN apt-get install -y g++
-# TODO: use open-cv-headless for web app and Docker (pip install opencv-python-headless`); see <https://pypi.org/project/opencv-python>:
-RUN apt-get install -y ffmpeg libsm6 libxext6 # Needed for OpenCV
 
 RUN pip install --upgrade pip
 RUN pip install pipenv

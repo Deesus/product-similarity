@@ -6,7 +6,6 @@ name = "pypi"
 [packages]
 flask = "*"
 numpy = "*"
-opencv-python = "*"
 tensorflow = "*"
 tensorflow-serving-api = "*"
 annoy = "*"
@@ -14,6 +13,7 @@ flask-cors = "*"
 grpcio = "*"
 python-dotenv = "*"
 gunicorn = "*"
+opencv-python-headless = "*"
 
 [dev-packages]
 
