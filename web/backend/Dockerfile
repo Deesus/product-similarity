@@ -29,7 +29,5 @@ RUN pip install -r /app/requirements.txt
 # N.b. the build context location is different than the Dockerfile location:
 COPY /backend /app/backend
 COPY flask_server.py .
-COPY .env.prod .
-COPY .flaskenv .
 
 CMD ['gunicorn', '--workers=2', '--bind', ':5000', 'flask_server:app']
