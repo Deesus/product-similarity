@@ -6,7 +6,7 @@ services:
         container_name: product_similarity_frontend
         build:
             context: ./
-            dockerfile: frontend/Dockerfile
+            dockerfile: frontend/Dockerfile.prod
         ports:
             - "3000:3000"
         command: npm run start
@@ -19,7 +19,7 @@ services:
         container_name: product_similarity_backend
         build:
             context: ./
-            dockerfile: backend/Dockerfile
+            dockerfile: backend/Dockerfile.prod
         ports:
             - "5000:5000"
         command: gunicorn --bind 0.0.0.0:5000 flask_server:app

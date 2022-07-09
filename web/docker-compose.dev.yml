@@ -1,0 +1,58 @@
+version: "3.7"
+
+services:
+    frontend:
+        image: product-similarity-frontend:1
+        container_name: product_similarity_frontend
+        build:
+            context: ./
+            dockerfile: frontend/Dockerfile.dev
+        ports:
+            - "3000:3000"
+        command: npm run dev
+        volumes:
+            - /app/node_modules
+            - ./frontend:/app
+        restart: on-failure
+        networks:
+            - similarity-net
+
+    backend:
+        image: product-similarity-backend:1
+        container_name: product_similarity_backend
+        build:
+            context: ./
+            dockerfile: backend/Dockerfile.dev
+        ports:
+            - "5000:5000"
+        command: flask run -h 0.0.0.0 -p 5000
+        env_file:
+            - backend/.env.dev
+        volumes:
+            - ./backend:/app/backend
+            - ./flask_server.py:/app/flask_server.py
+        restart: on-failure
+        networks:
+            - similarity-net
+
+    model_server:
+        image: tensorflow/serving:2.9.0
+        container_name: product_similarity_model_server
+        ports:
+            - "8500:8500"   # gRPC
+            - "8501:8501"   # REST
+        # See <https://www.tensorflow.org/tfx/serving/serving_config>:
+        command: --model_config_file=/models/models.config
+        # Although not mentioned in TF docs, we need to specify volumes in order to use the `--model_config_file` arg,
+        # and therefore, be able to use TensorFlow Serving with Docker Compose. Both the config file and the saved-model
+        # location need to be declared:
+        volumes:
+            - ./model_server/models/models.config:/models/models.config
+            - ./model_server/models/resnet_similarity/:/models/resnet_similarity
+        restart: on-failure
+        networks:
+            - similarity-net
+
+networks:
+    similarity-net:
+        driver: bridge
