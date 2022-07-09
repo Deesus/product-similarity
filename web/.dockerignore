@@ -1,0 +1,10 @@
+local.*
+*.md
+
+# Front-end:
+node_modules/
+dist/
+.nuxt/
+
+# Back-end:
+__pycache__/
