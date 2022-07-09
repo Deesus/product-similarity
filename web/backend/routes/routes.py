@@ -25,8 +25,7 @@ def file_upload():
     # Recall that using `.read()` moves the cursor to EOF; hence the reason we don't check for empty bytes
     # until after (safely) setting the value of `uploaded_file`:
     if uploaded_file != b'':
-        # TODO: does this url need to be changed?
-        similar_images_ids = find_similar_images(uploaded_file, 'localhost:8500')
+        similar_images_ids = find_similar_images(uploaded_file, 'model_server:8500')
         return jsonify(file_paths=similar_images_ids)
 
 
@@ -37,7 +36,6 @@ def find_related_items():
     # TODO: is there any real performance gains by converting to bytearray first (rather than directly to bytes)?
     file = bytearray(response.read())
     file = bytes(file)
-    # TODO: does this url need to be changed?
-    similar_images_ids = find_similar_images(file, 'localhost:8500')
+    similar_images_ids = find_similar_images(file, 'model_server:8500')
 
     return jsonify(file_paths=similar_images_ids)
