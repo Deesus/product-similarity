@@ -60,7 +60,7 @@ export default {
             this.$emit('error', '')
 
             axios.put(
-                'http://0.0.0.0:5000/api/find-related',
+                'http://localhost:5000/api/find-related',
                 { imgPath })
                 .then((response) => {
                     this.$emit('select-img', imgPath)

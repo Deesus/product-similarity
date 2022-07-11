@@ -101,7 +101,7 @@ export default {
             // TODO: Technically, this should be two API calls: PUT to put the resource on the server,
             // and GET to fetch the results
             axios.put(
-                'http://0.0.0.0:5000/api/file-upload',
+                'http://localhost:5000/api/file-upload',
                 formData,
                 {
                     headers: {
