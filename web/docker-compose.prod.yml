@@ -2,26 +2,26 @@ version: "3.7"
 
 services:
     frontend:
-        image: product-similarity-frontend:1
-        container_name: product_similarity_frontend
+        image: deesus/product-similarity-frontend:latest
+        container_name: frontend
         build:
             context: ./
             dockerfile: frontend/Dockerfile.prod
         ports:
-            - "3000:3000"
+            - "127.0.0.1:3000:3000"
         command: npm run start
         restart: on-failure
         networks:
             - similarity-net
 
     backend:
-        image: product-similarity-backend:1
-        container_name: product_similarity_backend
+        image: deesus/product-similarity-backend:latest
+        container_name: backend
         build:
             context: ./
             dockerfile: backend/Dockerfile.prod
         ports:
-            - "5000:5000"
+            - "127.0.0.1:5000:5000"
         command: gunicorn --bind 0.0.0.0:5000 flask_server:app
         env_file:
             - backend/.env.prod
@@ -31,10 +31,10 @@ services:
 
     model_server:
         image: tensorflow/serving:2.9.0
-        container_name: product_similarity_model_server
+        container_name: model_server
         ports:
-            - "8500:8500"   # gRPC
-            - "8501:8501"   # REST
+            - "127.0.0.1:8500:8500"   # gRPC
+            - "127.0.0.1:8501:8501"   # REST
         # See <https://www.tensorflow.org/tfx/serving/serving_config>:
         command: --model_config_file=/models/models.config
         # Although not mentioned in TF docs, we need to specify volumes in order to use the `--model_config_file` arg,
