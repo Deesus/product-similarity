@@ -24,7 +24,7 @@ VECTOR_DIM = 2048  # Equal to final layer (global_max_pooling2d) in model
 # ########## Load Annoy index (k-approximate nearest neighbors): ##########
 annoy_ = AnnoyIndex(VECTOR_DIM, 'angular')
 # File path assumes cwd is the `web/` folder:
-annoy_index_path = str(Path('./backend/model_client/annoy_index/abo_embedding.ann').resolve())
+annoy_index_path = str(Path('./backend/model_client/annoy_index/img_embedding.ann').resolve())
 annoy_.load(annoy_index_path)
 
 

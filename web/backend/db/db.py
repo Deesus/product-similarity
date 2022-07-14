@@ -1,7 +1,7 @@
 import sqlite3
 from pathlib import Path
 
-DB_PATH = Path('./backend/db/abo_products.db').resolve()
+DB_PATH = Path('./backend/db/database.db').resolve()
 
 
 def get_db_connection():
