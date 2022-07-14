@@ -6,15 +6,30 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.13.5
+#       jupytext_version: 1.13.8
 #   kernelspec:
 #     display_name: Python 3
 #     language: python
 #     name: python3
 # ---
 
+# + [markdown] pycharm={"name": "#%% md\n"}
+# # Product Image Similarity
+# In this notebook, we will develop a model that takes an image as input, and finds closely related product images based on that. "Closely related," in this context, means images that "look" similar to the input image.
+#
+# ##### Overview of the process:
+# 1. We will create a generator to hold the file paths of all the images in our dataset. We will then use this generator to explore our dataset, and later, feed it into our model.
+# 2. We won't be "training" a new model; we'll just use an existing convolutional network (ResNet) and load its pre-trained weights. What we will be doing, however, is feeding the images in our dataset to get the images' embedding vectors.
+# 3. We'll create a DataFrame that contains the image's embedding as well as its location (file path).
+# 4. With the embedding vectors of our images, we can use cosine similarity to ascertain how "closely related" two images are.
+# 5. We will need a mechanism to compare the input image with the images in our dataset. The naive solution is to iterate through our embedding DataFrame and calculate the cosine similarity of each pair (i.e. the input image and one of the images from our dataset).
+# 7. For a given input image, we would need to iterate through the entire list of cosine similarity scores and keep the `N` highest scores.
+# 9. Finally, we will create a prediction function that returns a list of similar images for the given input. We'll then test our model on a few example product images to ensure it's working as expected.
+
 # + pycharm={"name": "#%%\n"}
-# standard lib:
+# Import libraries:
+
+# Standard lib:
 import heapq
 import pathlib
 import glob
@@ -30,16 +45,16 @@ from tensorflow.keras.applications import ResNet50V2
 from tensorflow.keras import Sequential
 from tensorflow.keras.layers import GlobalMaxPool2D
 
-# plotting and imaging:
+# Plotting and imaging:
 import cv2
 import matplotlib.pyplot as plt
 
 
 # + [markdown] pycharm={"name": "#%% md\n"}
-# ## Load and Process Images:
+# ## Load Images:
 
 # + pycharm={"name": "#%%\n"}
-# n.b. we don't need to sort since we're not training the model:
+# N.b. we don’t need to shuffle the data since we’re not doing any training:
 def get_file_paths():
     """ Create generator of all image file paths.
 
@@ -52,21 +67,25 @@ def get_file_paths():
 file_paths = get_file_paths()
 
 # + [markdown] pycharm={"name": "#%% md\n"}
-# ## Explore Data -- i.e. images:
+# ## Exploring the Data:
+#
+# Let's look at the typical images in our dataset.
 # N.b. the dataset includes different size images and images with different number of channels (i.e. both RGB and grayscale) images.
 
 # + pycharm={"name": "#%%\n"}
 example_img = cv2.imread(next(file_paths))
 print(plt.imshow(example_img))
 
-# reset generator:
+# Reset generator:
 file_paths = get_file_paths()
 
 # + [markdown] pycharm={"name": "#%% md\n"}
 # ## Load ResNet Model:
+# Since we only need to generate the embedding vectors, we can make use of the well-known [ResNet model](https://arxiv.org/abs/1512.03385). ResNet is [already included in Keras/TensorFlow](https://www.tensorflow.org/api_docs/python/tf/keras/applications/resnet_v2/ResNet50V2), and we can load pre-trained weights from ImageNet. In other words, we don't need to create a new model from scratch, and we don't need to do any training. We will remove the final couple layers in the network (i.e. the fully connected layer and the layer before that) -- these will later be replaced with a global max pooling layer, which is used for feature extraction.
 
 # + pycharm={"name": "#%%\n"}
-# constants:
+# Constants:
+# The model expects these image dimensions:
 IMG_HEIGHT  = 224
 IMG_WIDTH   = 224
 
@@ -107,9 +126,10 @@ model.summary()
 # )
 # ```
 
-# + pycharm={"name": "#%%\n"}
-# Helper methods:
+# + [markdown] pycharm={"name": "#%% md\n"}
+# ## Helper methods:
 
+# + pycharm={"name": "#%%\n"}
 def cosine_similarity(embedding_1: np.ndarray, embedding_2: np.ndarray):
     """ Calculates the cosine similarity of two vectors.
 
@@ -143,7 +163,14 @@ def process_image(img: np.ndarray):
     processed_img = np.expand_dims(processed_img, axis=0)
     return processed_img
 
+
 def get_embedding(file_path: str):
+    """ Get the embedding vector of a given image.
+
+    :param file_path: File location of the image.
+    :return {np.ndarray}: The embedding vector (extracted features) of the image after it goes through the network.
+    """
+
     img = cv2.imread(file_path)
     img = process_image(img)
     embedding = model.predict(img)
@@ -153,6 +180,7 @@ def get_embedding(file_path: str):
 
 # + [markdown] pycharm={"name": "#%% md\n"}
 # ## Calculate the Embedding Vector and Cosine Similarity:
+# We'll iterate thorough the entire dataset of images and append the image's embedding and file path as a new row in our DataFrame.
 
 # + pycharm={"name": "#%%\n"}
 # %%time
@@ -167,10 +195,19 @@ for file_path_ in file_paths:
     df_embeddings = df_embeddings.append({'file': file_name_, 'file_path': file_path_, 'embedding': embedding_}, ignore_index=True)
 
 # + pycharm={"name": "#%%\n"}
-# write out to file:
+# Write out to file:
 df_embeddings.to_csv(pathlib.Path('../data/output/embedding.csv'))
 
 df_embeddings.head()
+
+# + [markdown] pycharm={"name": "#%% md\n"}
+# ## Tabularizing the cosine similarity scores:
+#
+# This is completely optional, but I wanted to better visualize the cosine similarity values across the entire dataset. In order to do so, I created an $N\times N$ matrix, where the image in each row is paired with every image (in each column).
+#
+# When we print out the matrix, notice the diagonal line of ones when we compare the similarity of an image to itself. This tells us that an image is perfectly similar to itself, which is expected.
+#
+# Another observation is that most similarity values are fairly high -- greater than $0.5$. This is due to the fact this particular dataset is made up of clothing items (shirts, shoes, dresses, etc.). Plus, the image quality and setting (professionally shot in front of a white background -- as opposed to user submissions from varying devices) all add to the consistency and similarity of the images.
 
 # + pycharm={"name": "#%%\n"}
 # %%time
@@ -182,11 +219,11 @@ for i in range(n_images):
         similarity_scores[i, j] = cosine_similarity(df_embeddings.iloc[i]['embedding'], df_embeddings.iloc[j]['embedding'])
 
 # + pycharm={"name": "#%%\n"}
-# create empty dataframe with file names as both the column and index names:
+# Create empty DataFrame with file names as both the column and index names:
 file_names = df_embeddings.loc[:, 'file'].tolist()
 df_similarity = pd.DataFrame(similarity_scores, columns=file_names, index=file_names)
 
-# write out to file:
+# Write out to file:
 df_similarity.to_csv(pathlib.Path('../data/output/similarity_scores.csv'))
 
 df_similarity.head()
@@ -197,6 +234,17 @@ df_similarity.head()
 
 # + pycharm={"name": "#%%\n"}
 def find_most_similar_images(img_path: str, num_results: int = 5):
+    """ Get the N most similar images.
+
+    Since the function iterates through the entire dataset, we get the absolute best matches.
+
+    :param img_path: File path of source image. Function finds similar product images based on this source image.
+    :param num_results: The number of similar items we want to return. E.g. if set to 5, the function will return
+        the closest 5 images.
+    :return {list}: The top matches. Each element in list is a tuple of (similarity, file_path) where similarity
+        is a float, and file_path is a string.
+    """
+
     # Load single image, process, and get embedding:
     target_embedding = get_embedding(img_path)
 
@@ -224,15 +272,28 @@ def find_most_similar_images(img_path: str, num_results: int = 5):
 
 # + pycharm={"name": "#%%\n"}
 def display_similar_images(img_path: str, num_results: int = 5):
+    """ Get and display N similar images.
+
+    :param img_path: File path of source image. Function finds similar product images based on this source image.
+    :param num_results: The number of similar items we want to return. E.g. if set to 5, the function will return
+        the closest 5 images.
+    :return {None}: Renders images in the notebook.
+    """
+
     top_results = find_most_similar_images(img_path, num_results)
 
-    # display multiple images; see <https://stackoverflow.com/q/19471814>:
-    for similarity_score, file_path in top_results: # recall `top_results` returns a tuple of (similarity, file_path)
+    # Display multiple images; see <https://stackoverflow.com/q/19471814>:
+    for similarity_score, file_path in top_results: # Recall `top_results` returns a tuple of (similarity, file_path)
         img = cv2.imread(file_path)
         plt.figure()
-        plt.title(file_path.split('/')[-1]) # use file name as figure title
+        plt.title(file_path.split('/')[-1]) # Use file name as figure title
         plt.imshow(img)
 
+
+# + [markdown] pycharm={"name": "#%% md\n"}
+# ## Testing our model:
+#
+# Let's test our model with a few example images to make sure we are getting the expected results.
 
 # + pycharm={"name": "#%%\n"}
 example_img_path = '../data/e-commerce-product-images/Footwear/Men/Images/images_with_product_ids/3797.jpg'

@@ -176,6 +176,7 @@ def get_embedding(file_path: str):
     :param file_path: File location of the image.
     :return {np.ndarray}: The embedding vector (extracted features) of the image after it goes through the network.
     """
+
     img = cv2.imread(file_path)
     img = process_image(img)
     embedding = model.predict(img)
@@ -197,6 +198,7 @@ def get_db_connection():
 
     :return: A connection pool
     """
+
     conn = sqlite3.connect('../data/database.db')
     conn.row_factory = sqlite3.Row
     return conn
@@ -316,9 +318,10 @@ def display_similar_images(img_path: str, num_results: int = 5):
     Since we render the images via Matplotlib, this function is only useful for Jupyter notebooks rather
     than production apps.
 
-    :param img_path:
-    :param num_results:
-    :return:
+    :param img_path: File path of source image. Function finds similar product images based on this source image.
+    :param num_results: The number of similar items we want to return. E.g. if set to 5, the function will return
+        the closest 5 images.
+    :return {None}: Renders images in the notebook.
     """
 
     list_images = find_similar_images(img_path, num_results)

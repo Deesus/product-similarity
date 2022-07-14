@@ -6,15 +6,28 @@
 #       extension: .py
 #       format_name: light
 #       format_version: '1.5'
-#       jupytext_version: 1.13.5
+#       jupytext_version: 1.13.8
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
 #     name: python3
 # ---
 
+# + [markdown] pycharm={"name": "#%% md\n"}
+# # Product Image Similarity
+# In this notebook, we will develop a model that takes an image as input, and finds closely related product images based on that. "Closely related," in this context, means images that "look" similar to the input image.
+#
+# ##### Overview of the process:
+# 1. We will create a generator to hold the file paths of all the images in our dataset. We will then use this generator to explore our dataset, and later, feed it into our model.
+# 2. We won't be "training" a new model; we'll just use an existing convolutional network (ResNet) and load its pre-trained weights. What we will be doing, however, is feeding the images in our dataset to get the images' embedding vectors.
+# 3. When a user uploads an image and tries to find the most similar product image(s) from our dataset, we will need a mechanism to compare the uploaded image with all/most of the images in our dataset. The naive solution is to create a large table with the embeddings of every image and then iterating through the entire list. However, because websites have lots of product images, this is not scalable. Instead, we will use locality sensitive hashing to find the k-approximate nearest neighbors -- i.e. "similar" images. This will return relatively good results (but not the absolute best/closest matches) in an efficient (fast) manner.
+# 4. While we are calculating the images' embedding vectors, we will also populate a lookup dict that references the image ID with the location of the image.
+# 5. Finally, we will create a prediction function that returns a list of similar images for the given input. We'll then test our model on a few example product images to ensure it's working as expected.
+
 # + pycharm={"name": "#%%\n"}
-# standard lib:
+# Import libraries:
+
+# Standard lib:
 import glob
 
 # ML/data science libraries:
@@ -26,16 +39,16 @@ from tensorflow.keras.applications import ResNet50V2
 from tensorflow.keras import Sequential
 from tensorflow.keras.layers import GlobalMaxPool2D
 
-# plotting and imaging:
+# Plotting and imaging:
 import cv2
 import matplotlib.pyplot as plt
 
 
 # + [markdown] pycharm={"name": "#%% md\n"}
-# ## Get Files:
+# ## Load Images:
 
 # + pycharm={"name": "#%%\n"}
-# n.b. we don't need to sort since we're not training the model:
+# N.b. we don’t need to shuffle the data since we’re not doing any training:
 def get_file_paths():
     """ Create generator of all image file paths.
 
@@ -48,7 +61,9 @@ def get_file_paths():
 file_paths = get_file_paths()
 
 # + [markdown] pycharm={"name": "#%% md\n"}
-# ## Explore Data -- i.e. images:
+# ## Exploring the Data:
+#
+# Let's look at the typical images in our dataset.
 # N.b. the dataset includes different size images and images with different number of channels (i.e. both RGB and grayscale) images.
 
 # + pycharm={"name": "#%%\n"}
@@ -62,7 +77,8 @@ file_paths = get_file_paths()
 # ## Load ResNet Model:
 
 # + pycharm={"name": "#%%\n"}
-# constants:
+# Constants:
+# The model expects these image dimensions:
 IMG_HEIGHT  = 224
 IMG_WIDTH   = 224
 
@@ -111,9 +127,10 @@ model.save(f'../models/resnet_similarity/{MODEL_VERSION}')
 # )
 # ```
 
-# + pycharm={"name": "#%%\n"}
-# Helper methods:
+# + [markdown] pycharm={"name": "#%% md\n"}
+# ## Helper methods:
 
+# + pycharm={"name": "#%%\n"}
 def process_image(img: np.ndarray):
     """ Pre-process images before feeding to model.
 
@@ -146,7 +163,14 @@ def process_image(img: np.ndarray):
     processed_img = np.expand_dims(processed_img, axis=0)
     return processed_img
 
+
 def get_embedding(file_path: str):
+    """ Get the embedding vector of a given image.
+
+    :param file_path: File location of the image.
+    :return {np.ndarray}: The embedding vector (extracted features) of the image after it goes through the network.
+    """
+
     img = cv2.imread(file_path)
     img = process_image(img)
     embedding = model.predict(img)
@@ -156,8 +180,10 @@ def get_embedding(file_path: str):
 
 
 # + [markdown] pycharm={"name": "#%% md\n"}
-# ## Build Step: calculate the embedding vectors and k-approximate-nearest-neighbor index
+# ## Calculate the embedding vectors and k-approximate-nearest-neighbor index:
+# We will set up locality sensitive hashing to make our predictions more efficient. According to the Annoy documentation, there's a trade-off between the number of hyperplanes (`n_trees` arg) and the file size of the Annoy index. However, upon testing different values myself, I didn't notice much difference -- the size of the index file was pretty similar for this use-case.
 #
+# ##### Deciding on the number of hyperplanes when working on locality sensitive hashing:
 # The Amazon Berkeley Objects (ABO) Dataset has more than 147,000 products.
 # If we want each bucket to have 20 items, then $\frac{147,000}{20}=7,350$ buckets.
 # Each hyperplane divides the space into 2. So, $2^{n}=7,350 \therefore n = \log_{2}7,350 \approx 13$. Thus, we need 13 hyperplanes per instance.
@@ -192,7 +218,15 @@ annoy_.save('../data/annoy_index/img_embedding.ann')
 
 # + pycharm={"name": "#%%\n"}
 def find_similar_images(img_path: str, num_results: int = 5):
-    # N.b. if user searches for an image that already exists in database,
+    """ Get N similar images.
+
+    :param img_path: File path of source image. Function finds similar product images based on this source image.
+    :param num_results: The number of similar items we want to return. E.g. if set to 5, the function will return
+        the closest 5 images.
+    :return {list}: A list of file paths (strings).
+    """
+
+    # N.b. if user searches for an image that already exists in our dataset,
     # we DO want to return the exact same image; it's not a duplicate result.
 
     # Load single image, process, and get embedding:
@@ -206,6 +240,14 @@ def find_similar_images(img_path: str, num_results: int = 5):
 
 # + pycharm={"name": "#%%\n"}
 def display_similar_images(img_path: str, num_results: int = 5):
+    """ Get and display N similar images.
+
+    :param img_path: File path of source image. Function finds similar product images based on this source image.
+    :param num_results: The number of similar items we want to return. E.g. if set to 5, the function will return
+        the closest 5 images.
+    :return {None}: Renders images in the notebook.
+    """
+
     list_images = find_similar_images(img_path, num_results)
 
     # display multiple images; see <https://stackoverflow.com/q/19471814>:
@@ -217,8 +259,13 @@ def display_similar_images(img_path: str, num_results: int = 5):
         plt.imshow(img)
 
 
+# + [markdown] pycharm={"name": "#%% md\n"}
+# ## Testing our model:
+# Let’s test our model with a few example images to make sure we are getting the expected results.
+
 # + pycharm={"name": "#%%\n"}
-example_img_path = '../data/e-commerce-product-images/Footwear/Women/Images/images_with_product_ids/2610.jpg'
+# N.b. change this file path to location of your example image:
+example_img_path = '../data/2610.jpg'
 
 print('----- Selected Image: -----')
 plt.imshow(cv2.imread(example_img_path))
