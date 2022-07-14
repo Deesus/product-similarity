@@ -1,7 +1,42 @@
 # Product/Image Similarity
-- Built with TensorFlow.
-- Uses pretrained [ResNet model](https://arxiv.org/pdf/1512.03385.pdf) to create image embeddings. 
+###### An end-to-end machine learning application that displays related images.
+
+##### Features Include:
+- **Uploading a product image** returns a set of similar product images.
+- Users can **click on one of the results** to get a new set of similar images.
+- Built on a dataset of **over 398,000 product images** from the [Amazon Berkley Objects](https://amazon-berkeley-objects.s3.amazonaws.com/index.html) dataset.
+
+##### Misc Info:
+- Check out the latest Jupyter Notebook in `/notebooks` for details/walkthrough on how the core elements of the model and app were developed.
+- Built with TensorFlow. Uses pretrained [ResNet](https://arxiv.org/pdf/1512.03385.pdf) model to create image embeddings. 
 - Uses [Annoy package](https://github.com/spotify/annoy) for locality sensitive hashing (k-approximate-nearest-neighbors) to find similar product images quickly.
+
+### Quickstart:
+This project includes development and production versions of the web app. Both run on Docker.
+
+- The production Docker images are the fastest and easiest way to get the app running on your local. This version uses the [Amazon Berkley Objects](https://amazon-berkeley-objects.s3.amazonaws.com/index.html) dataset (over 398,000 product images). Everything is already included and no setup is required. You can still use your own custom dataset (images) in production mode -- see section, _"Running the Web App With Custom Data"_, below on how to do so.
+
+- The development Docker images include hot reload (live update of code changes), and Flask's debugger is switched on. You will need to run your dataset (images) through the neural network and move/rename a few files. See section, _"Running the Web App With Custom Data"_, below for more details.
+
+##### Docker setup:
+1. Ensure you have [Docker and Docker Compose installed](https://docs.docker.com/desktop/install/linux-install/) on your machine.
+2. If you're running the development Docker images or want to use your own dataset, follow the steps in _"Running the Web App With Custom Data"_ below before continuing.
+3. From the terminal, `cd` into the `/web` folder. This is the location of the entire web app and its dependencies.
+4. We'll now build the Docker services. There are two versions: one for production and one for development.
+   - For the production images, run `$ docker-compose -f docker-compose.prod.yml up`
+   - For the development version of the images, run `$ docker-compose -f docker-compose.dev.yml up`
+5. Open your browser and go to `http://localhost:3000`.
+
+##### Running the Web App With Custom Data:
+You can use your own dataset (images) for the product-similarity web app. The database file (`.db`), Annoy Index file (`.ann`), and the saved model files are not version controlled, and therefore are absent from this repo. You will need to generate those files -- here's how:
+
+1. Fire up Jupyter Notebooks and open the latest notebook (`product_image_similarity_v4.ipynb`) found in the `/notebooks` folder .
+2. Follow the steps in the notebook:
+3. In the _"Exploring the Data"_ section of the notebook, you will need to change the path name used in `get_file_paths()` to point to your image folder.
+4. In the _"Load ResNet"_ section of the notebook, the model is saved to `models/resnet_similarity/[MODEL_VERSION]`. Copy the `resnet_similarity` folder to `/web/model_server/models` -- the full path should look like this: `/web/model_server/models/resnet_similarity/[VERSION_NUMBER]`.
+5. After you run your images through the neural network, the Annoy index and DB files are built. You'll then need to copy/move them to appropriate location. Copy to `img_embedding.ann` file to `/web/backend/model_client/annoy_index/`. And copy the `database.db` file to `/web/backend/db/`.
+
+N.b. the reason these generated files aren't automatically written to the `/web` folder is to prevent unknowingly overriding the existing files (especially since they are not version controlled).
 
 ### Technologies Used:
 - [TensorFlow](https://www.tensorflow.org/overview/)
@@ -24,10 +59,6 @@
 - The app only looks for image similarity, but for a more robust solution, we might want to take into account both image and the product description (if it exists).
 - Annoy doesn't support incremental additions -- we can't add items once the index has been built. FAISS supports updatable indices, and would be a better choice for that case.
 - Annoy file size grows quadratically with # of items in index.
-
-### Configurations:
-- TensorFlow Model Serving: See official documentation on [TF serving config file](https://github.com/tensorflow/serving/blob/master/tensorflow_serving/g3doc/serving_config.md)
-    - [Example implementation of models.config using docker-compose](https://stackoverflow.com/a/56590829) 
 
 ### License and Credits:
 Copyright © 2022 Deepankara Reddy. BSD-2 license.
