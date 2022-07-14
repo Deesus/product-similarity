@@ -184,9 +184,9 @@ def get_embedding(file_path: str):
 # We will set up locality sensitive hashing to make our predictions more efficient. According to the Annoy documentation, there's a trade-off between the number of hyperplanes (`n_trees` arg) and the file size of the Annoy index. However, upon testing different values myself, I didn't notice much difference -- the size of the index file was pretty similar for this use-case.
 #
 # ##### Deciding on the number of hyperplanes when working on locality sensitive hashing:
-# The Amazon Berkeley Objects (ABO) Dataset has more than 147,000 products.
-# If we want each bucket to have 20 items, then $\frac{147,000}{20}=7,350$ buckets.
-# Each hyperplane divides the space into 2. So, $2^{n}=7,350 \therefore n = \log_{2}7,350 \approx 13$. Thus, we need 13 hyperplanes per instance.
+# The Amazon Berkeley Objects (ABO) Dataset has more than 398,000 images.
+# If we want each bucket to have 50 items, then $\frac{398,000}{50}=7,960$ buckets.
+# Each hyperplane divides the space into 2. So, $2^{n}=7,960 \therefore n = \log_{2}7,960 \approx 13$. Thus, we need 13 hyperplanes per instance.
 
 # + pycharm={"name": "#%%\n"}
 NUM_HYPERPLANES = 13
@@ -196,7 +196,7 @@ VECTOR_DIM = model.get_layer('global_max_pooling2d').output.shape[1] # each embe
 # + pycharm={"name": "#%%\n"}
 # %%time
 
-# 147,000 items in a dict will take up about 7MB of RAM:
+# 398,000 items in a dict will take up about 19MB of RAM:
 file_lookup = {}
 # See Annoy docs: <https://github.com/spotify/annoy>
 annoy_ = AnnoyIndex(VECTOR_DIM, 'angular')
