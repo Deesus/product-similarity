@@ -8,3 +8,7 @@ dist/
 
 # Back-end:
 __pycache__/
+
+# Misc:
+notebooks/
+*.ipynb
