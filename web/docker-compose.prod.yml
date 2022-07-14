@@ -35,7 +35,7 @@ services:
         ports:
             - "127.0.0.1:8500:8500"   # gRPC
             - "127.0.0.1:8501:8501"   # REST
-        # See <https://www.tensorflow.org/tfx/serving/serving_config>:
+        # See <https://www.tensorflow.org/tfx/serving/serving_config> and <https://stackoverflow.com/a/56590829>:
         command: --model_config_file=/models/models.config
         # Although not mentioned in TF docs, we need to specify volumes in order to use the `--model_config_file` arg,
         # and therefore, be able to use TensorFlow Serving with Docker Compose. Both the config file and the saved-model
