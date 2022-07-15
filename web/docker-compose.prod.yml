@@ -2,29 +2,32 @@ version: "3.7"
 
 services:
     frontend:
-        image: deesus/product-similarity-frontend:latest
+        image: deesus/product-similarity-frontend:prod
         container_name: frontend
         build:
             context: ./
             dockerfile: frontend/Dockerfile.prod
         ports:
             - "127.0.0.1:3000:3000"
+        environment:
+            - HOST=0.0.0.0
         command: npm run start
         restart: on-failure
         networks:
             - similarity-net
 
     backend:
-        image: deesus/product-similarity-backend:latest
+        image: deesus/product-similarity-backend:prod
         container_name: backend
         build:
             context: ./
             dockerfile: backend/Dockerfile.prod
         ports:
             - "127.0.0.1:5000:5000"
+        environment:
+            - FLASK_APP=flask_server.py
+            - FLASK_ENV=production
         command: gunicorn --bind 0.0.0.0:5000 flask_server:app
-        env_file:
-            - backend/.env.prod
         restart: on-failure
         networks:
             - similarity-net

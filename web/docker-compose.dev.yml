@@ -2,13 +2,15 @@ version: "3.7"
 
 services:
     frontend:
-        image: deesus/product-similarity-frontend:latest
+        image: deesus/product-similarity-frontend:dev
         container_name: frontend
         build:
             context: ./
             dockerfile: frontend/Dockerfile.dev
         ports:
             - "127.0.0.1:3000:3000"
+        environment:
+            - HOST=0.0.0.0
         command: npm run dev
         volumes:
             - /app/node_modules
@@ -18,16 +20,17 @@ services:
             - similarity-net
 
     backend:
-        image: deesus/product-similarity-backend:latest
+        image: deesus/product-similarity-backend:dev
         container_name: backend
         build:
             context: ./
             dockerfile: backend/Dockerfile.dev
         ports:
             - "127.0.0.1:5000:5000"
+        environment:
+            - FLASK_APP=flask_server.py
+            - FLASK_ENV=development
         command: flask run -h 0.0.0.0 -p 5000
-        env_file:
-            - backend/.env.dev
         volumes:
             - ./backend:/app/backend
             - ./flask_server.py:/app/flask_server.py

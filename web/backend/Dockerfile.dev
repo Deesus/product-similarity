@@ -30,7 +30,4 @@ RUN pip install -r /app/requirements.txt
 COPY /backend /app/backend
 COPY flask_server.py .
 
-ENV HOST 0.0.0.0
-EXPOSE 5000
-
 CMD ["flask", "run"]
