@@ -30,4 +30,4 @@ RUN pip install -r /app/requirements.txt
 COPY /backend /app/backend
 COPY flask_server.py .
 
-CMD ["gunicorn", "--workers=2", "--bind", "localhost:5000", "flask_server:app"]
+CMD ["gunicorn", "--workers=2", "--bind", "0.0.0.0:5000", "flask_server:app"]
