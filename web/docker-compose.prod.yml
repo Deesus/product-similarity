@@ -8,9 +8,10 @@ services:
             context: ./
             dockerfile: frontend/Dockerfile.prod
         ports:
-            - "127.0.0.1:3000:3000"
+            - "127.0.0.1:80:80"
         environment:
             - HOST=0.0.0.0
+            - PORT=80
         command: npm run start
         restart: on-failure
         networks:
