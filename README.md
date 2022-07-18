@@ -1,6 +1,8 @@
 # Product/Image Similarity
 ###### An end-to-end machine learning application that displays related images.
 
+A deployed version is available at: [product-similarity.deepankara.com](https://product-similarity.deepankara.com)
+
 ##### Features Include:
 - **Uploading a product image** returns a set of similar product images.
 - Users can **click on one of the results** to get a new set of similar images.
@@ -22,7 +24,8 @@ This project includes development and production versions of the web app. Both r
 1. Ensure you have [Docker and Docker Compose installed](https://docs.docker.com/desktop/install/linux-install/) on your machine.
 2. If you're running the development Docker images or want to use your own dataset, follow the steps in _"Running the Web App With Custom Data"_ below before continuing.
 3. From the terminal, `cd` into the `/web` folder. This is the location of the entire web app and its dependencies.
-4. We'll now build the Docker services. There are two versions: one for production and one for development.
+4. If you deployed the repo to a production environment (e.g. cloud instance), then you'll need to add your domain URL to the CORS list in `/web/routes/routes.py`.
+5. We'll now build the Docker services. There are two versions: one for production and one for development.
    - For the production images, run `$ docker-compose -f docker-compose.prod.yml up`
    - For the development version of the images, run `$ docker-compose -f docker-compose.dev.yml up`
 5. Open your browser and go to `http://localhost:3000`.
