@@ -14,13 +14,8 @@ A deployed version is available at: [product-similarity.deepankara.com](https://
 - Uses [Annoy package](https://github.com/spotify/annoy) for locality sensitive hashing (k-approximate-nearest-neighbors) to find similar product images quickly.
 
 ### Quickstart:
-This project includes development and production versions of the web app. Both run on Docker.
+This project includes development and production versions of the web app. Both run on Docker. You will need to run your dataset (images) through the neural network and move/rename a few files. See section, _"Running the Web App With Custom Data"_, below for more details.
 
-- The production Docker images are the fastest and easiest way to get the app running on your local. This version uses the [Amazon Berkley Objects](https://amazon-berkeley-objects.s3.amazonaws.com/index.html) dataset (over 398,000 product images). Everything is already included and no setup is required. You can still use your own custom dataset (images) in production mode -- see section, _"Running the Web App With Custom Data"_, below on how to do so.
-
-- The development Docker images include hot reload (live update of code changes), and Flask's debugger is switched on. You will need to run your dataset (images) through the neural network and move/rename a few files. See section, _"Running the Web App With Custom Data"_, below for more details.
-
-##### Docker setup:
 1. Ensure you have [Docker and Docker Compose installed](https://docs.docker.com/desktop/install/linux-install/) on your machine.
 2. If you're running the development Docker images or want to use your own dataset, follow the steps in _"Running the Web App With Custom Data"_ below before continuing.
 3. From the terminal, `cd` into the `/web` folder. This is the location of the entire web app and its dependencies.
@@ -28,7 +23,7 @@ This project includes development and production versions of the web app. Both r
 5. We'll now build the Docker services. There are two versions: one for production and one for development.
    - For the production images, run `$ docker-compose -f docker-compose.prod.yml up`
    - For the development version of the images, run `$ docker-compose -f docker-compose.dev.yml up`
-5. Open your browser and go to `http://localhost:3000`.
+5. Open your browser and go to `http://localhost:3000`. (If deployed to production, simply enter your server's URL.)
 
 ##### Running the Web App With Custom Data:
 You can use your own dataset (images) for the product-similarity web app. The database file (`.db`), Annoy Index file (`.ann`), and the saved model files are not version controlled, and therefore are absent from this repo. You will need to generate those files -- here's how:
