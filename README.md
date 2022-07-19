@@ -1,20 +1,23 @@
 # Product/Image Similarity
 ###### An end-to-end machine learning application that displays related images.
+___
 
 A deployed version is available at: [product-similarity.deepankara.com](https://product-similarity.deepankara.com)
 
-##### Features Include:
+Check out the [latest Jupyter Notebook](https://github.com/Deesus/product-similarity/blob/master/notebooks/product_image_similarity_v3.ipynb) for details/walkthrough on how the core elements of the model and app were developed.
+
+#### Features Include:
 - **Uploading a product image** returns a set of similar product images.
 - Users can **click on one of the results** to get a new set of similar images.
 - Built on a dataset of **over 398,000 product images** from the [Amazon Berkley Objects](https://amazon-berkeley-objects.s3.amazonaws.com/index.html) dataset.
 
-##### Misc Info:
-- Check out the latest Jupyter Notebook in `/notebooks` for details/walkthrough on how the core elements of the model and app were developed.
-- Built with TensorFlow. Uses pretrained [ResNet](https://arxiv.org/pdf/1512.03385.pdf) model to create image embeddings. 
+#### Misc Info:
+- Built with TensorFlow. 
+- Uses pretrained [ResNet](https://arxiv.org/pdf/1512.03385.pdf) model to create image embeddings. 
 - Uses [Annoy package](https://github.com/spotify/annoy) for locality sensitive hashing (k-approximate-nearest-neighbors) to find similar product images quickly.
 
-### Quickstart:
-This project includes development and production versions of the web app. Both run on Docker. You will need to run your dataset (images) through the neural network and move/rename a few files. See section, _"Running the Web App With Custom Data"_, below for more details.
+## Quickstart:
+This project includes development and production versions of the web app. Both run on Docker. You will need to run your dataset (images) through the neural network and move/rename a few files. See section, [Running the Web App With Custom Data](https://github.com/Deesus/product-similarity#running-the-web-app-with-custom-data), below for more details.
 
 1. Ensure you have [Docker and Docker Compose installed](https://docs.docker.com/desktop/install/linux-install/) on your machine.
 2. If you're running the development Docker images or want to use your own dataset, follow the steps in _"Running the Web App With Custom Data"_ below before continuing.
@@ -25,7 +28,7 @@ This project includes development and production versions of the web app. Both r
    - For the development version of the images, run `$ docker-compose -f docker-compose.dev.yml up`
 5. Open your browser and go to `http://localhost:3000`. (If deployed to production, simply enter your server's URL.)
 
-##### Running the Web App With Custom Data:
+#### Running the Web App With Custom Data:
 You can use your own dataset (images) for the product-similarity web app. The database file (`.db`), Annoy Index file (`.ann`), and the saved model files are not version controlled, and therefore are absent from this repo. You will need to generate those files -- here's how:
 
 1. Fire up Jupyter Notebooks and open the latest notebook (`product_image_similarity_v4.ipynb`) found in the `/notebooks` folder .
@@ -36,7 +39,7 @@ You can use your own dataset (images) for the product-similarity web app. The da
 
 N.b. the reason these generated files aren't automatically written to the `/web` folder is to prevent unknowingly overriding the existing files (especially since they are not version controlled).
 
-### Technologies Used:
+## Technologies Used:
 - [TensorFlow](https://www.tensorflow.org/overview/)
 - [TensorFlow Serving](https://www.tensorflow.org/tfx/guide/serving)
 - [gRPC](https://grpc.io/)
@@ -45,20 +48,40 @@ N.b. the reason these generated files aren't automatically written to the `/web`
 - [NumPy](https://numpy.org/doc/stable/)
 - [Vue.js (Nuxt)](https://nuxtjs.org/)
 - [SQL (SQLite)](https://docs.python.org/3/library/sqlite3.html)
-- [Node.js](https://nodejs.org/)
 - [Gunicorn](https://gunicorn.org/)
 - [Flask](https://flask.palletsprojects.com/en/2.1.x/)
+
+## Notebooks:
+Notebooks located in `/notebooks` are versioned -- please view the latest version for the most refined, most performant methods/model.
+
+Notebooks have also been converted to Python files via [Jupytext](https://jupytext.readthedocs.io/en/latest/index.html). These `.py` files are only for comparing diffs.
+
+#### An overview of the notebook versions:
+##### v1:
+- Created initial model using pretrained ResNet.
+- Created method for calculating cosine similarity.
+- Created methods for finding and displaying most similar images.
+- Generated DataFrame to store embedding vectors for dataset.
+
+##### v2:
+- Replaced creating and iterating through the embedding DataFrame with Annoy index; thus greatly increasing performance.
+- Replaced cosine similarity search with k-approximate nearest neighbors (Annoy).
+- Refactored how `find_most_similar_images()` method obtains the best matches.
+
+##### v3:
+- Replaced dict lookup with an SQLite database for the product lookup.
+- Added additional documentation.
 
 ### TODO:
 - [ ] Combine image similarity with text (product description) similarity.
 - [ ] Replace cv2 with PIL (due to cv2 using BGR and PIL being more common in Tensorflow ecosystem)
 
-### Limitations:
+## Limitations:
 - The app only looks for image similarity, but for a more robust solution, we might want to take into account both image and the product description (if it exists).
 - Annoy doesn't support incremental additions -- we can't add items once the index has been built. FAISS supports updatable indices, and would be a better choice for that case.
 - Annoy file size grows quadratically with # of items in index.
 
-### License and Credits:
+## License and Credits:
 Copyright © 2022 Deepankara Reddy. BSD-2 license.
 
 - [Amazon Berkley Objects](https://amazon-berkeley-objects.s3.amazonaws.com/index.html) data from Amazon.com -- [CC BY-NC 4.0](https://amazon-berkeley-objects.s3.amazonaws.com/LICENSE-CC-BY-NC-4.0.txt) License
