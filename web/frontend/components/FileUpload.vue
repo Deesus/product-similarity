@@ -49,6 +49,7 @@
 
 <script>
 import axios from 'axios'
+const apiBaseUrl = process.env.apiBaseUrl
 
 export default {
     name: 'FileUpload',
@@ -101,7 +102,7 @@ export default {
             // TODO: Technically, this should be two API calls: PUT to put the resource on the server,
             // and GET to fetch the results
             axios.put(
-                'http://127.0.0.1:5000/api/file-upload',
+                `${apiBaseUrl}/api/file-upload`,
                 formData,
                 {
                     headers: {

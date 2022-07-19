@@ -72,6 +72,11 @@ export default {
         }
     },
 
+    env: {
+        // Set the apiBaseUrl to the HOST:PORT of the backend:
+        apiBaseUrl: process.env.NODE_ENV === 'development' ? 'http://127.0.0.1:5000' : ''
+    },
+
     // Build Configuration: https://go.nuxtjs.dev/config-build
     build: {}
 }

@@ -1,16 +1,8 @@
-from flask import Blueprint, request, jsonify
-from flask_cors import CORS
+from flask import Blueprint, request, jsonify, render_template
 from urllib.request import urlopen
 from ..model_client import find_similar_images
 
 api = Blueprint('api', __name__)
-
-CORS(
-    api,
-    # TODO: update CORS origins list to include your production URL:
-    # See <https://flask-cors.readthedocs.io/en/latest/> for more info.
-    origins=['http://localhost:3000', 'https://product-similarity.deepankara.com']
-)
 
 
 @api.route('/api/file-upload', methods=['PUT'])

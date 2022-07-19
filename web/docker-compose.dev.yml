@@ -7,7 +7,6 @@ services:
         build:
             context: ./
             dockerfile: frontend/Dockerfile.dev
-        # N.b if you change the ports, remember to update CORS in `routes.py`:
         ports:
             - "127.0.0.1:3000:3000"
         environment:
@@ -28,6 +27,7 @@ services:
             context: ./
             dockerfile: backend/Dockerfile.dev
         ports:
+            # N.b if you change the ports, remember to update the `env` property in `nuxt.config.js`:
             - "127.0.0.1:5000:5000"
         environment:
             - FLASK_APP=flask_server.py

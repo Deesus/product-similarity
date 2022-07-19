@@ -1,3 +1,21 @@
+# ##### Build stage: #####
+FROM node:lts-alpine AS build-stage
+
+WORKDIR /app
+
+COPY frontend .
+
+# Install ALL dependencies:
+RUN npm ci
+RUN npm run build
+
+# Once project is built, remove dev-only dependencies and only install production packages:
+# See <https://nuxtjs.org/deployments/koyeb/> for reference:
+RUN rm -rf node_modules
+RUN npm ci --production
+
+
+# ##### Run-time stage: #####
 FROM python:3.8-slim
 
 WORKDIR /app
@@ -9,6 +27,9 @@ ENV PYTHONUNBUFFERED 1
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONFAULTHANDLER 1
 ENV PIP_ROOT_USER_ACTION=ignore
+
+# Copy front-end assets:
+COPY --from=build-stage /app/dist ./dist
 
 # Install OS-level dependencies:
 RUN apt-get update
