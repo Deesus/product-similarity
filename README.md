@@ -1,4 +1,4 @@
-# Product/Image Similarity
+# Product Image Similarity
 ###### An end-to-end machine learning application that displays related images.
 ___
 
@@ -46,6 +46,7 @@ N.b. the reason these generated files aren't automatically written to the `/web`
 - [Docker](https://docs.docker.com/)
 - [Annoy](https://github.com/spotify/annoy#annoy)
 - [NumPy](https://numpy.org/doc/stable/)
+- [OpenCV](https://opencv.org/)
 - [Vue.js (Nuxt)](https://nuxtjs.org/)
 - [SQL (SQLite)](https://docs.python.org/3/library/sqlite3.html)
 - [Gunicorn](https://gunicorn.org/)
