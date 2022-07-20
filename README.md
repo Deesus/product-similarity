@@ -13,7 +13,7 @@ Check out the [latest Jupyter Notebook](https://github.com/Deesus/product-simila
 
 #### Misc Info:
 - Built with TensorFlow. 
-- Uses pretrained [ResNet](https://arxiv.org/pdf/1512.03385.pdf) model to create image embeddings. 
+- Uses pre-trained [ResNet](https://arxiv.org/pdf/1512.03385.pdf) model to create image embeddings. 
 - Uses [Annoy package](https://github.com/spotify/annoy) for locality sensitive hashing (k-approximate-nearest-neighbors) to find similar product images quickly.
 
 ## Quickstart:
@@ -59,7 +59,7 @@ Notebooks have also been converted to Python files via [Jupytext](https://jupyte
 
 #### An overview of the notebook versions:
 ##### v1:
-- Created initial model using pretrained ResNet.
+- Created initial model using pre-trained ResNet.
 - Created method for calculating cosine similarity.
 - Created methods for finding and displaying most similar images.
 - Generated DataFrame to store embedding vectors for dataset.
