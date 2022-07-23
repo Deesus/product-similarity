@@ -62,7 +62,7 @@ def get_file_paths():
     """
 
     # We could also have used `pathlib.Path().glob()`, but that returns a POSIX path rather than str:
-    return glob.iglob('../data/e-commerce-product-images/**/*.jpg', recursive=True)
+    return glob.iglob('../data/product-dataset/**/*.jpg', recursive=True)
 
 file_paths = get_file_paths()
 
@@ -173,8 +173,8 @@ def get_embedding(file_path: str):
 
     img = cv2.imread(file_path)
     img = process_image(img)
-    embedding = model.predict(img)
 
+    embedding = model.predict(img, verbose=False)
     return embedding
 
 
@@ -183,8 +183,6 @@ def get_embedding(file_path: str):
 # We'll iterate thorough the entire dataset of images and append the image's embedding and file path as a new row in our DataFrame.
 
 # + pycharm={"name": "#%%\n"}
-# %%time
-
 df_embeddings = pd.DataFrame(columns=['file', 'file_path', 'embedding'])
 
 # TODO: can we optimize/speed-up this, perhaps via batch processing?
@@ -192,13 +190,16 @@ for file_path_ in file_paths:
     embedding_ = get_embedding(file_path_)
     file_name_ = file_path_.split('/')[-1]
 
-    df_embeddings = df_embeddings.append({'file': file_name_, 'file_path': file_path_, 'embedding': embedding_}, ignore_index=True)
+    # N.b. even though `embedding_` is already a 1xN vector, we need to wrap it in a list when building the DataFrame (per-column arrays must each be 1-D):
+    df_embeddings = pd.concat([df_embeddings, pd.DataFrame({'file': file_name_, 'file_path': file_path_, 'embedding': [embedding_]})],
+                              ignore_index=True)
+
+# + pycharm={"name": "#%%\n"}
+df_embeddings.head()
 
 # + pycharm={"name": "#%%\n"}
 # Write out to file:
-df_embeddings.to_csv(pathlib.Path('../data/output/embedding.csv'))
-
-df_embeddings.head()
+df_embeddings.to_csv(pathlib.Path('../data/embedding.csv'))
 
 # + [markdown] pycharm={"name": "#%% md\n"}
 # ## Tabularizing the cosine similarity scores:
@@ -210,8 +211,6 @@ df_embeddings.head()
 # Another observation is that most similarity values are fairly high -- greater than $0.5$. This is due to the fact this particular dataset is made up of clothing items (shirts, shoes, dresses, etc.). Plus, the image quality and setting (professionally shot in front of a white background -- as opposed to user submissions from varying devices) all add to the consistency and similarity of the images.
 
 # + pycharm={"name": "#%%\n"}
-# %%time
-
 n_images = len(df_embeddings)
 similarity_scores = np.zeros((n_images, n_images))
 for i in range(n_images):
@@ -224,7 +223,7 @@ file_names = df_embeddings.loc[:, 'file'].tolist()
 df_similarity = pd.DataFrame(similarity_scores, columns=file_names, index=file_names)
 
 # Write out to file:
-df_similarity.to_csv(pathlib.Path('../data/output/similarity_scores.csv'))
+df_similarity.to_csv(pathlib.Path('../data/similarity_scores.csv'))
 
 df_similarity.head()
 
@@ -296,7 +295,7 @@ def display_similar_images(img_path: str, num_results: int = 5):
 # Let's test our model with a few example images to make sure we are getting the expected results.
 
 # + pycharm={"name": "#%%\n"}
-example_img_path = '../data/e-commerce-product-images/Footwear/Men/Images/images_with_product_ids/3797.jpg'
+example_img_path = '../data/product-dataset/2610.jpg'
 
 print('----- Selected Image: -----')
 plt.imshow(cv2.imread(example_img_path))
