@@ -51,11 +51,12 @@ N.b. the reason these generated files aren't automatically written to the `/web`
 - [SQL (SQLite)](https://docs.python.org/3/library/sqlite3.html)
 - [Gunicorn](https://gunicorn.org/)
 - [Flask](https://flask.palletsprojects.com/en/2.1.x/)
+- [Pandas](https://pandas.pydata.org/pandas-docs/stable) (only in the notebooks)
 
 ## Notebooks:
-Notebooks located in `/notebooks` are versioned -- please view the latest version for the most refined, most performant methods/model.
-
-Notebooks have also been converted to Python files via [Jupytext](https://jupytext.readthedocs.io/en/latest/index.html). These `.py` files are only for comparing diffs.
+- Notebooks located in `/notebooks` are versioned -- please view the latest version for the most refined, most performant methods/model.
+- Notebooks have also been converted to Python files via [Jupytext](https://jupytext.readthedocs.io/en/latest/index.html). These `.py` files are only for comparing diffs.
+- Due to the size of the Amazon Berkley Objects dataset, the notebooks initially train on the smaller [E-commerce Product Images](https://www.kaggle.com/datasets/vikashrajluhaniwal/fashion-images) dataset for correctness before training on ABO data.
 
 #### An overview of the notebook versions:
 ##### v1:
@@ -88,3 +89,4 @@ Copyright © 2022 Deepankara Reddy. BSD-2 license.
 - [Amazon Berkley Objects](https://amazon-berkeley-objects.s3.amazonaws.com/index.html) data from Amazon.com -- [CC BY-NC 4.0](https://amazon-berkeley-objects.s3.amazonaws.com/LICENSE-CC-BY-NC-4.0.txt) License
 - Footer icons from [simple-icons](https://github.com/simple-icons/simple-icons) -- CC0 1.0 License
 - "Box" icon from [Lukasz Adam](https://lukaszadam.com/illustrations) -- CC0 license (MIT license)
+- [E-commerce Product Images](https://www.kaggle.com/datasets/vikashrajluhaniwal/fashion-images) (only used in the notebooks) -- CC0 license
