@@ -6,6 +6,8 @@ import grpc
 from tensorflow_serving.apis import predict_pb2
 from tensorflow_serving.apis import prediction_service_pb2_grpc
 # TODO: Is there an alternative to `make_tensor_proto` so that we don't have to install the entire Tensorflow package?
+# This is a known TF issue <https://github.com/tensorflow/serving/issues/557>:
+# One possible workaround: <https://stackoverflow.com/a/73063171/17758890>
 from tensorflow import make_tensor_proto, make_ndarray
 from pathlib import Path
 
