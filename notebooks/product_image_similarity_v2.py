@@ -56,7 +56,7 @@ def get_file_paths():
     """
 
     # We could also have used `pathlib.Path().glob()`, but that returns a POSIX path rather than str:
-    return glob.iglob('../data/e-commerce-product-images/**/*.jpg', recursive=True)
+    return glob.iglob('../data/product-dataset/**/*.jpg', recursive=True)
 
 file_paths = get_file_paths()
 
@@ -173,7 +173,7 @@ def get_embedding(file_path: str):
 
     img = cv2.imread(file_path)
     img = process_image(img)
-    embedding = model.predict(img)
+    embedding = model.predict(img, verbose=False)  # Turn off `verbose`; otherwise, we will get a printout everytime the function is called
     embedding = np.squeeze(embedding)  # ensure output is 1D array
 
     return embedding
@@ -194,8 +194,6 @@ NUM_HYPERPLANES = 13
 VECTOR_DIM = model.get_layer('global_max_pooling2d').output.shape[1] # each embedding is length 2048
 
 # + pycharm={"name": "#%%\n"}
-# %%time
-
 # 398,000 items in a dict will take up about 19MB of RAM:
 file_lookup = {}
 # See Annoy docs: <https://github.com/spotify/annoy>
@@ -210,7 +208,7 @@ for i, file_path_ in enumerate(file_paths):
 
 # Build and save Annoy index:
 annoy_.build(NUM_HYPERPLANES)
-annoy_.save('../data/annoy_index/img_embedding.ann')
+annoy_.save('../data/img_embedding.ann')
 
 
 # + [markdown] pycharm={"name": "#%% md\n"}
@@ -265,7 +263,7 @@ def display_similar_images(img_path: str, num_results: int = 5):
 
 # + pycharm={"name": "#%%\n"}
 # N.b. change this file path to location of your example image:
-example_img_path = '../data/2610.jpg'
+example_img_path = '../data/product-dataset/2610.jpg'
 
 print('----- Selected Image: -----')
 plt.imshow(cv2.imread(example_img_path))
@@ -273,6 +271,3 @@ plt.imshow(cv2.imread(example_img_path))
 # + pycharm={"name": "#%%\n"}
 print('----- Similar Images: -----')
 display_similar_images(example_img_path)
-
-# + pycharm={"name": "#%%\n"}
-

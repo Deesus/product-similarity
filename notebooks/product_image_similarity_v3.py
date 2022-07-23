@@ -61,7 +61,7 @@ def get_file_paths():
     :return {generator}
     """
 
-    path_name = '../data/amazon-berkley-objects/**/*.jpg'
+    path_name = '../data/product-dataset/**/*.jpg'
 
     # We could also have used `pathlib.Path().glob()`, but that returns a POSIX path rather than str:
     return glob.iglob(path_name, recursive=True)
@@ -179,7 +179,7 @@ def get_embedding(file_path: str):
 
     img = cv2.imread(file_path)
     img = process_image(img)
-    embedding = model.predict(img)
+    embedding = model.predict(img, verbose=False)  # Turn off `verbose`; otherwise, we will get a printout everytime the function is called
     embedding = np.squeeze(embedding)  # Ensure output is 1D array
 
     return embedding
@@ -194,7 +194,7 @@ def get_embedding(file_path: str):
 def get_db_connection():
     """ Opens a database connection pool.
 
-    Note: the DB path is hard-coded; you might want to change the path to a different location.
+    TODO: the DB path is hard-coded; you might want to change the path to a different location.
 
     :return: A connection pool
     """
@@ -235,8 +235,6 @@ VECTOR_DIM = model.get_layer('global_max_pooling2d').output.shape[1] # Each embe
 # We will iterate through the entire dataset of images (from the generator we created earlier), simultaniously saving the embedding in the Annoy index and also saving the image file path in the lookup table:
 
 # + pycharm={"name": "#%%\n"}
-# %%time
-
 # See Annoy docs: <https://github.com/spotify/annoy>
 annoy_ = AnnoyIndex(VECTOR_DIM, 'angular')
 
@@ -261,7 +259,7 @@ conn_.close()
 # + pycharm={"name": "#%%\n"}
 # Build and save Annoy index:
 annoy_.build(NUM_HYPERPLANES)
-annoy_.save('../data/annoy_index/img_embedding.ann')
+annoy_.save('../data/img_embedding.ann')
 
 
 # + [markdown] pycharm={"name": "#%% md\n"}
@@ -344,7 +342,7 @@ def display_similar_images(img_path: str, num_results: int = 5):
 # Select an example product image:
 
 # N.b. change this file path to location of your example image:
-example_img_path = '../data/2610.jpg'
+example_img_path = '../data/product-dataset/2610.jpg'
 
 print('----- Selected Image: -----')
 plt.imshow(cv2.imread(example_img_path))
