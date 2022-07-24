@@ -23,7 +23,7 @@ The fastest and easiest way to get the app running on your local machine is by p
 2. From the terminal, pull the Docker image: `$ docker pull deesus/product-similarity-backend:prod`
 3. Also pull the TensorFlow Serving image: `$ docker pull tensorflow/serving:2.9.0`
 4. `cd` into the `/web` folder and fire up the Docker services: `$ docker-compose -f docker-compose.prod.yml up`
-5. Open your browser and go to `http://localhost`.
+5. Open your browser and go to `http://localhost`
 
 ## Normal Setup:
 This project includes development and production versions of the web app. Both run on Docker. You will need to run your dataset (images) through the neural network and move/rename a few files.
@@ -33,16 +33,15 @@ This project includes development and production versions of the web app. Both r
 3. Fire up Jupyter Notebooks and open the latest notebook (`product_image_similarity_v4.ipynb`) found in the `/notebooks` folder.
 4. Follow the steps in the notebook.
 5. In the _"Exploring the Data"_ section of the notebook, you will need to change the path name used in `get_file_paths()` to point to your images folder.
-6. In the _"Load ResNet"_ section of the notebook, the model is saved to `models/resnet_similarity/[MODEL_VERSION]`. Copy the `resnet_similarity` folder to `/web/model_server/models` -- the full path should look like this: `/web/model_server/models/resnet_similarity/[VERSION_NUMBER]`.
-7. After you run your images through the neural network, the Annoy index and DB files are built. You'll then need to copy/move them to appropriate location. Copy to `img_embedding.ann` file to `/web/backend/model_client/annoy_index/`. And copy the `database.db` file to `/web/backend/db/`.\*
+6. In the _"Load ResNet"_ section of the notebook, the model is saved to `models/resnet_similarity/[MODEL_VERSION]`. Copy the `resnet_similarity` folder to `/web/model_server/models` -- the full path should look like this: `/web/model_server/models/resnet_similarity/[VERSION_NUMBER]`
+7. After you run your images through the neural network, the Annoy index and DB files are built. You'll then need to copy/move them to appropriate location. Copy to `img_embedding.ann` file to `/web/backend/model_client/annoy_index/`. And copy the `database.db` file to `/web/backend/db/`. _Aside: The reason these generated files aren't automatically written to the `/web` folder is to prevent unknowingly overriding the existing files (especially since they are not version controlled)._
 8. From the terminal, `cd` into the `/web` folder. We'll now build the Docker services. There are two versions: one for production and one for development.
     - For the development version of the images, run `$ docker-compose -f docker-compose.dev.yml up`
     - For the production images, run `$ docker-compose -f docker-compose.prod.yml up`
 9. Open your browser.
-    - If you're running the development version, go to  `http://localhost:3000`. 
-    - If you're running the production version, go to `http://localhost`. (If deployed to production, simply enter your server's URL.)
-
-_*The reason these generated files aren't automatically written to the `/web` folder is to prevent unknowingly overriding the existing files (especially since they are not version controlled)._
+    - If you're running the development version, go to  `http://localhost:3000`
+    - If you're running the production version, go to `http://localhost`
+    - If deployed to production (e.g. cloud instance), simply enter your server's URL.
 
 ## Technologies Used:
 - [TensorFlow](https://www.tensorflow.org/overview/)
