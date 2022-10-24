@@ -25,6 +25,14 @@ def file_upload():
     if uploaded_file != b'':
         similar_images_ids = find_similar_images(uploaded_file, 'model_server:8500')
         return jsonify(file_paths=similar_images_ids)
+    # TODO: Do we anticipate ever having an empty file? If not, this condition is a bit unnecessary:
+    # Return error if empty file:
+    else:
+        return jsonify(
+            message="Invalid file: could not read empty file.",
+            category="error",
+            status=400
+        )
 
 
 @api.route('/api/find-related', methods=['PUT'])
