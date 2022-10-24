@@ -14,7 +14,7 @@ def file_upload():
         return jsonify(
             message="Invalid file type: only jpg and png files are accepted.",
             category="error",
-            status=404
+            status=422
         )
 
     # We have to convert file storage object to something cv2/numpy can read:
