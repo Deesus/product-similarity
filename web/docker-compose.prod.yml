@@ -6,7 +6,7 @@ services:
         container_name: backend
         build:
             context: ./
-            dockerfile: backend/Dockerfile.prod
+            dockerfile: backend/prod.Dockerfile
         ports:
             - "80:80"
         environment:

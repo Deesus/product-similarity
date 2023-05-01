@@ -1,14 +1,20 @@
+# ----- Front-end: -----
+**/node_modules/
+**/dist/
+**/.nuxt/
+
+# ----- Back-end: -----
+__pycache__/
+# Ignore saved models (we create a volume instead):
+model_server/
+
+# ----- Misc: -----
+**/notebooks/
+*.ipynb
 local.*
 *.md
 
-# Front-end:
-node_modules/
-dist/
-.nuxt/
-
-# Back-end:
-__pycache__/
-
-# Misc:
-notebooks/
-*.ipynb
+# ----- IDEs: -----
+.idea/
+.vs/
+.vscode/

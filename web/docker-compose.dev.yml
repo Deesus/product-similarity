@@ -6,7 +6,7 @@ services:
         container_name: frontend
         build:
             context: ./
-            dockerfile: frontend/Dockerfile.dev
+            dockerfile: frontend/Dockerfile
         ports:
             - "127.0.0.1:3000:3000"
         environment:
@@ -25,7 +25,7 @@ services:
         container_name: backend
         build:
             context: ./
-            dockerfile: backend/Dockerfile.dev
+            dockerfile: backend/dev.Dockerfile
         ports:
             # N.b if you change the ports, remember to update the `env` property in `nuxt.config.js`:
             - "127.0.0.1:5000:5000"
