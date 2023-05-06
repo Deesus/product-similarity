@@ -70,7 +70,7 @@ export default {
     // Set the page title <https://nuxtjs.org/docs/concepts/views/#pages>:
     head() {
         return {
-            title: 'Product Similarity | Deepankara Reddy'
+            title: 'Product Similarity'
         }
     },
     methods: {
