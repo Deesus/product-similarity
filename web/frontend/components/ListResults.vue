@@ -14,7 +14,8 @@
                     :src="filePath"
                     aspect-ratio="1"
                     max-width="256"
-                    class="cursor-pointer grey lighten-2"
+                    contain
+                    class="cursor-pointer"
                     @click="imgClick(filePath)"
                 >
                     <template #placeholder>
