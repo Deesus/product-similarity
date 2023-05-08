@@ -83,9 +83,11 @@ This project includes development and production versions of the web app. Both r
 - Annoy doesn't support incremental additions -- we can't add items once the index has been built. FAISS supports updatable indices, and would be a better choice for that case.
 - Annoy file size grows quadratically with # of items in index.
 - OpenCV should probably be replaced with PIL (due to OpenCV using BGR instead of RGB, and PIL being more common in the TensorFlow ecosystem).
+- Images with transparency, e.g. PNG files with transparent backgrounds, will throw an error if fed into the model.
+
 
 ## License and Credits:
-Copyright © 2022 Deepankara Reddy. BSD-2 license.
+Copyright © 2022-2023 Deepankara Reddy. BSD-2 license.
 
 - [Amazon Berkley Objects](https://amazon-berkeley-objects.s3.amazonaws.com/index.html) data from Amazon.com -- [CC BY-NC 4.0](https://amazon-berkeley-objects.s3.amazonaws.com/LICENSE-CC-BY-NC-4.0.txt) License
 - Footer icons from [simple-icons](https://github.com/simple-icons/simple-icons) -- CC0 1.0 License
