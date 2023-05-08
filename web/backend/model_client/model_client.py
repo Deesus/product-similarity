@@ -3,6 +3,7 @@ import numpy as np
 import cv2
 from annoy import AnnoyIndex
 import grpc
+import sqlite3
 from tensorflow_serving.apis import predict_pb2
 from tensorflow_serving.apis import prediction_service_pb2_grpc
 # TODO: Is there an alternative to `make_tensor_proto` so that we don't have to install the entire Tensorflow package?
@@ -83,11 +84,16 @@ def find_similar_images(file: bytes, server_address: str, num_results: int = 6):
     ids_of_matches = annoy_.get_nns_by_vector(target_embedding, num_results)
 
     # Get list of image paths from db:
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    list_of_file_paths = [query_product_by_id(id, cursor)['file_path'] for id in ids_of_matches]
-    conn.close()
-
+    list_of_file_paths = []
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        list_of_file_paths = [query_product_by_id(id, cursor)['file_path'] for id in ids_of_matches]
+        conn.close()
+    except sqlite3.OperationalError as error:
+        print('sqlite3.OperationalError:', error)
+    except sqlite3.Error as error:
+        print('sqlite3.Error:', error)
     return list_of_file_paths
 
 
