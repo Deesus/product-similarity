@@ -1,4 +1,4 @@
-# Product Image Recommender
+# Related Product Recommender
 ###### An end-to-end machine learning application that recommends related product images.
 ___
 
@@ -7,9 +7,9 @@ A deployed version is available at: [product-similarity.deepankara.com](https://
 Check out the [latest Jupyter Notebook](https://github.com/Deesus/product-similarity/blob/master/notebooks/product_image_similarity_v3.ipynb) for details/walkthrough on how the core elements of the model and app were developed.
 
 #### Features Include:
-- **Uploading a product image** returns a set of similar product images.
+- **Uploading a product image** returns a set of related product images.
 - Users can **click on one of the results** to get a new set of recommended (similar) product images.
-- Built on a dataset of **over 398,000 product images** from the [Amazon Berkley Objects](https://amazon-berkeley-objects.s3.amazonaws.com/index.html) dataset.
+- Built on a dataset of **nearly 400,000 product images** from the [Amazon Berkley Objects](https://amazon-berkeley-objects.s3.amazonaws.com/index.html) dataset.
 
 #### Misc Info:
 - Built with TensorFlow. 
