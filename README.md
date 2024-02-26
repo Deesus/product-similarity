@@ -2,8 +2,6 @@
 ###### An end-to-end machine learning application that recommends related product images.
 ___
 
-A deployed version is available at: [product-similarity.deepankara.com](https://product-similarity.deepankara.com)
-
 Check out the [latest Jupyter Notebook](https://github.com/Deesus/product-similarity/blob/master/notebooks/product_image_similarity_v3.ipynb) for details/walkthrough on how the core elements of the model and app were developed.
 
 #### Features Include:
@@ -87,7 +85,7 @@ This project includes development and production versions of the web app. Both r
 
 
 ## License and Credits:
-Copyright © 2022-2023 Deepankara Reddy. BSD-2 license.
+Copyright © 2022-2024 Deepankara Reddy. BSD-2 license.
 
 - [Amazon Berkley Objects](https://amazon-berkeley-objects.s3.amazonaws.com/index.html) data from Amazon.com -- [CC BY-NC 4.0](https://amazon-berkeley-objects.s3.amazonaws.com/LICENSE-CC-BY-NC-4.0.txt) License
 - Footer icons from [simple-icons](https://github.com/simple-icons/simple-icons) -- CC0 1.0 License
